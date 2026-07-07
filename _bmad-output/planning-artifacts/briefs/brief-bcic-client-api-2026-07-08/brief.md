@@ -19,7 +19,7 @@ The product bet is maintainability over cleverness. Because this SDK will sit un
 
 Future BCIC automation will otherwise repeat the same fragile integration work: building URLs, attaching credentials, handling expired sessions, parsing JSON or XML responses, interpreting permission errors, managing pagination, and translating API concepts into Python code. That repetition creates inconsistent behavior, scattered authentication logic, harder testing, and high migration cost whenever the BCIC API changes.
 
-The official Infinite Blue documentation exposes a broad API surface. The legacy REST API uses method-style endpoints under `/rest/api/{method_name}`, while REST API v2.0 includes Record, User, Admin, System, and custom method resources. The SDK needs to tame that surface into a predictable Python interface.
+The official Infinite Blue documentation exposes a broad API surface. The first implementation should prioritize the REST v1 method-style API under `/rest/api/{method_name}`. REST API v2.0, which includes Record, User, Admin, System, and custom method resources, should remain visible in the architecture but secondary to the v1-first roadmap.
 
 ## The Solution
 
@@ -38,9 +38,11 @@ client.users.update(...)
 
 The user-facing API should expose domain operations, not transport details. Internally, authentication, token refresh, retry policy, request construction, response parsing, exception mapping, pagination, logging, and model validation should be separate concerns.
 
-The target implementation stack is Python 3.12+, `httpx`, Pydantic v2, `pytest`, `python-dotenv`, `tenacity`, standard `typing`, Ruff, and mypy.
+The target implementation stack is Python 3.12+, Poetry, `httpx`, Pydantic v2, `pytest`, `python-dotenv`, `tenacity`, standard `typing`, Ruff, and mypy.
 
 Where an OpenAPI or Swagger specification is available, it should be treated as source of truth for endpoint and schema generation. Generated models or clients must remain isolated behind the hand-written SDK surface so regeneration after BCIC API updates does not break downstream projects.
+
+The initial SDK should focus on REST v1 coverage first. REST v2 support should be designed as a future-compatible extension, not the first release driver.
 
 ## Design Principles
 
@@ -75,6 +77,7 @@ Where an OpenAPI or Swagger specification is available, it should be treated as 
 ### In Scope
 
 - Python package structure and build/test/lint/type-check tooling.
+- Poetry-based dependency management and packaging.
 - Typed configuration and client initialization.
 - Authentication/session management.
 - HTTP transport wrapper using `httpx`.
@@ -82,7 +85,7 @@ Where an OpenAPI or Swagger specification is available, it should be treated as 
 - SDK exception hierarchy and API error mapping.
 - Pagination primitives and `list_all()` convenience methods.
 - Pydantic v2 response/request models where practical.
-- Endpoint modules for prioritized BCIC API domains.
+- Endpoint modules for prioritized BCIC REST v1 methods and domains.
 - Unit tests with mockable HTTP calls.
 - Developer documentation and examples outside the library package.
 
@@ -106,8 +109,8 @@ Where an OpenAPI or Swagger specification is available, it should be treated as 
 ## Open Questions
 
 - Is an OpenAPI/Swagger JSON specification available behind the Redocly documentation page, or only rendered HTML documentation?
-- Which BCIC API surface should be implemented first: REST v2 Record/User APIs, legacy REST methods, or both behind separate endpoint groups?
-- What authentication mode should be first-class for the organization: API key, JWT login flow, legacy session ID, or multiple strategies?
-- Which first endpoint domains matter most for the initial PRD: plans, contacts, users, records, metadata/admin, or another BCIC-specific object set?
+- Which REST v1 methods should define the first release: authentication, records, users, roles/permissions, binary data, search/select, or another subset?
+- What authentication mode should be first-class for REST v1: legacy session ID login flow, API key/JWT where available, or multiple strategies?
+- Which first endpoint domains matter most for the initial PRD: plans, contacts, users, records, metadata/admin, or another BCIC-specific object set mapped onto REST v1 methods?
 - Does the organization need support for both JSON and XML legacy responses, or can v1 support be JSON-only where available?
 - What backwards compatibility policy should the SDK promise before version 1.0?
