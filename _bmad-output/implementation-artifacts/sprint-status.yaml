@@ -1,0 +1,95 @@
+# generated: 2026-07-08
+# last_updated: 2026-07-08
+# project: bcic-client-api
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; sprint-status surfaces open ones
+
+generated: 2026-07-08
+last_updated: 2026-07-08
+project: bcic-client-api
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  # Epic 1: Installable SDK Client Foundation
+  epic-1: in-progress
+  1-1-initialize-the-installable-python-package: review
+  1-2-configure-the-client-explicitly-and-from-the-environment: review
+  1-3-expose-stable-domain-endpoint-properties: review
+  1-4-establish-common-typed-model-foundations: review
+  epic-1-retrospective: optional
+
+  # Epic 2: Authenticated REST v1 Method Execution
+  epic-2: backlog
+  2-1-build-the-rest-v1-transport-and-json-parser: backlog
+  2-2-authenticate-and-attach-session-credentials: backlog
+  2-3-manage-logout-and-client-lifecycle: backlog
+  2-4-map-failures-and-apply-retry-policy: backlog
+  2-5-execute-controlled-generic-rest-v1-methods: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Record Data Automation
+  epic-3: backlog
+  3-1-retrieve-a-single-record: backlog
+  3-2-retrieve-and-search-paged-records: backlog
+  3-3-traverse-all-record-pages-safely: backlog
+  3-4-create-records: backlog
+  3-5-update-records: backlog
+  3-6-delete-records: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: User, Permission, and Binary Operations
+  epic-4: backlog
+  4-1-retrieve-roles: backlog
+  4-2-retrieve-role-and-user-permissions: backlog
+  4-3-retrieve-binary-data: backlog
+  4-4-upload-binary-data: backlog
+  4-5-enforce-safe-operational-logging: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: SDK Adoption, Maintainability, and Release Confidence
+  epic-5: backlog
+  5-1-establish-mockable-unit-test-infrastructure: backlog
+  5-2-cover-public-sdk-behavior: backlog
+  5-3-enforce-automated-quality-gates: backlog
+  5-4-publish-consumer-documentation: backlog
+  5-5-provide-examples-and-public-api-docstrings: backlog
+  5-6-define-release-and-compatibility-governance: backlog
+  epic-5-retrospective: optional
