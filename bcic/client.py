@@ -3,8 +3,10 @@
 import os
 from collections.abc import Mapping
 
+import httpx
 from pydantic import SecretStr, ValidationError
 
+from bcic.auth import SessionAuth
 from bcic.config import ClientConfig, OutputFormat
 from bcic.endpoints import (
     BinaryEndpoint,
@@ -19,6 +21,7 @@ from bcic.endpoints.base import (
     _TransportDependencies,
 )
 from bcic.exceptions import ConfigurationError
+from bcic.transport import ResponseParser, RestTransport
 
 
 class Client:
@@ -38,6 +41,7 @@ class Client:
         max_retries: int = 3,
         retry_wait_seconds: float = 0.5,
         output_format: OutputFormat = "json",
+        http_client: httpx.Client | None = None,
     ) -> None:
         """Create a client from explicit validated configuration values."""
         try:
@@ -52,11 +56,25 @@ class Client:
             )
         except ValidationError as error:
             raise ConfigurationError("Invalid BCIC client configuration") from error
+        parser = ResponseParser()
+        transport = RestTransport(
+            self._config.base_url,
+            timeout=self._config.timeout,
+            client=http_client,
+            parser=parser,
+            max_retries=self._config.max_retries,
+            retry_wait_seconds=self._config.retry_wait_seconds,
+        )
+        self._authentication = SessionAuth(self._config, transport)
+        self._transport = transport
+        transport.authentication = self._authentication
         context = _EndpointContext(
             config=self._config,
-            authentication=_AuthenticationDependencies(self._config),
-            transport=_TransportDependencies(self._config),
-            parser=_ParserDependencies(self._config),
+            authentication=_AuthenticationDependencies(
+                self._config, self._authentication
+            ),
+            transport=_TransportDependencies(self._config, transport),
+            parser=_ParserDependencies(self._config, parser),
         )
         self._records = RecordsEndpoint(context)
         self._users = UsersEndpoint(context)
@@ -87,6 +105,31 @@ class Client:
     def methods(self) -> MethodsEndpoint:
         """Return the lower-level generic-method endpoint."""
         return self._methods
+
+    def authenticate(self) -> None:
+        """Establish and retain a private BCIC REST v1 session."""
+        self._authentication.authenticate()
+
+    def logout(self) -> None:
+        """Terminate the active BCIC session, if one exists."""
+        self._authentication.logout()
+
+    def close(self) -> None:
+        """Release owned HTTP resources; repeated calls are safe."""
+        self._transport.close()
+
+    def __enter__(self) -> "Client":
+        """Enter a client context."""
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: object | None,
+    ) -> None:
+        """Close the client without suppressing a body exception."""
+        self.close()
 
     @classmethod
     def from_env(

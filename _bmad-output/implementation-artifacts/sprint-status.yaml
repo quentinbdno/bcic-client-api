@@ -57,12 +57,12 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Authenticated REST v1 Method Execution
-  epic-2: backlog
-  2-1-build-the-rest-v1-transport-and-json-parser: backlog
-  2-2-authenticate-and-attach-session-credentials: backlog
-  2-3-manage-logout-and-client-lifecycle: backlog
-  2-4-map-failures-and-apply-retry-policy: backlog
-  2-5-execute-controlled-generic-rest-v1-methods: backlog
+  epic-2: in-progress
+  2-1-build-the-rest-v1-transport-and-json-parser: review
+  2-2-authenticate-and-attach-session-credentials: review
+  2-3-manage-logout-and-client-lifecycle: review
+  2-4-map-failures-and-apply-retry-policy: review
+  2-5-execute-controlled-generic-rest-v1-methods: review
   epic-2-retrospective: optional
 
   # Epic 3: Record Data Automation

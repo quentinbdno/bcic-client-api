@@ -3,7 +3,9 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
+from bcic.auth import SessionAuth
 from bcic.config import ClientConfig
+from bcic.transport import ResponseParser, RestTransport
 
 
 @dataclass(frozen=True, slots=True)
@@ -11,6 +13,7 @@ class _AuthenticationDependencies:
     """Configuration available to the future authentication adapter."""
 
     config: ClientConfig
+    strategy: SessionAuth
 
 
 @dataclass(frozen=True, slots=True)
@@ -18,6 +21,7 @@ class _TransportDependencies:
     """Configuration available to the future transport adapter."""
 
     config: ClientConfig
+    transport: RestTransport
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,6 +29,7 @@ class _ParserDependencies:
     """Configuration available to the future response parser."""
 
     config: ClientConfig
+    parser: ResponseParser
 
 
 @dataclass(frozen=True, slots=True)
