@@ -1,6 +1,10 @@
+---
+baseline_commit: b1f383f1fc11ad0e3d50214a46df2b647f37a06d
+---
+
 # Story 4.1: Retrieve Roles
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that I can inspect authorization structures without constructing generic REST
 
 ## Tasks / Subtasks
 
-- [ ] Define the immutable `Role` response model and normalization (AC: 1-4)
-  - [ ] Normalize `originalId` to `original_id`; require non-empty name, ID, and original ID while preserving nullable/empty optional text
-  - [ ] Validate role lists atomically and reject malformed top-level/item shapes without partial results
-- [ ] Implement role methods on `UsersEndpoint` (AC: 1-4)
-  - [ ] Centralize `getRoles` and `getRoleById` in endpoint method metadata
-  - [ ] Send configured JSON output and `roleId` only where required; keep authentication transport-owned
-- [ ] Add unit tests and run all quality gates (AC: 1-4)
-  - [ ] Cover list/single request shapes, empty lists, identifier validation, malformed data, not found, authorization, and parser failures
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define the immutable `Role` response model and normalization (AC: 1-4)
+  - [x] Normalize `originalId` to `original_id`; require non-empty name, ID, and original ID while preserving nullable/empty optional text
+  - [x] Validate role lists atomically and reject malformed top-level/item shapes without partial results
+- [x] Implement role methods on `UsersEndpoint` (AC: 1-4)
+  - [x] Centralize `getRoles` and `getRoleById` in endpoint method metadata
+  - [x] Send configured JSON output and `roleId` only where required; keep authentication transport-owned
+- [x] Add unit tests and run all quality gates (AC: 1-4)
+  - [x] Cover list/single request shapes, empty lists, identifier validation, malformed data, not found, authorization, and parser failures
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -76,9 +80,23 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- Focused user endpoint tests: 24 passed.
+- Full suite and static quality gates passed.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added immutable role modeling and atomic normalization.
+- Added typed role list/single retrieval through authenticated shared transport.
 
 ### File List
 
+- bcic/endpoints/users.py
+- bcic/models/__init__.py
+- bcic/models/users.py
+- tests/unit/test_endpoints.py
+- tests/unit/test_endpoints_users.py
+
+### Change Log
+
+- 2026-07-09: Implemented typed role retrieval and validation; status set to review.

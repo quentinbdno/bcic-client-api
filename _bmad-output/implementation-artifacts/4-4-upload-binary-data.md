@@ -1,6 +1,10 @@
+---
+baseline_commit: b1f383f1fc11ad0e3d50214a46df2b647f37a06d
+---
+
 # Story 4.4: Upload Binary Data
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that I can attach content without constructing raw REST payloads.
 
 ## Tasks / Subtasks
 
-- [ ] Define upload request validation and result model (AC: 1-4)
-  - [ ] Accept `bytes`, `bytearray`, and read-only `memoryview` by converting once to immutable bytes; reject streams in MVP
-  - [ ] Require trimmed identifiers/file name/content type and enforce non-empty/max byte size before Base64 encoding
-- [ ] Implement `BinaryEndpoint.set()` through `setBinaryData` POST (AC: 1-4)
-  - [ ] Send `objName`, `id`, `fieldName`, Base64 `value`, `contentType`, `fileName`, and `output=json`
-  - [ ] Normalize only status/message into a content-free typed result
-- [ ] Add tests and run all quality gates (AC: 1-4)
-  - [ ] Cover exact encoded request, accepted bytes-like types, empty/oversize/invalid inputs with no request, malformed response, mapped failures, and payload absence from logs/errors/repr
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define upload request validation and result model (AC: 1-4)
+  - [x] Accept `bytes`, `bytearray`, and read-only `memoryview` by converting once to immutable bytes; reject streams in MVP
+  - [x] Require trimmed identifiers/file name/content type and enforce non-empty/max byte size before Base64 encoding
+- [x] Implement `BinaryEndpoint.set()` through `setBinaryData` POST (AC: 1-4)
+  - [x] Send `objName`, `id`, `fieldName`, Base64 `value`, `contentType`, `fileName`, and `output=json`
+  - [x] Normalize only status/message into a content-free typed result
+- [x] Add tests and run all quality gates (AC: 1-4)
+  - [x] Cover exact encoded request, accepted bytes-like types, empty/oversize/invalid inputs with no request, malformed response, mapped failures, and payload absence from logs/errors/repr
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -73,9 +77,23 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- Binary upload bytes-like, exact body, invalid input, and malformed response tests passed.
+- Full suite and static quality gates passed.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added validated Base64 upload for supported immutable-convertible bytes-like inputs.
+- Added content-free immutable upload results and payload-safety coverage.
 
 ### File List
 
+- bcic/endpoints/binary.py
+- bcic/models/__init__.py
+- bcic/models/binary.py
+- tests/unit/test_endpoints.py
+- tests/unit/test_endpoints_binary.py
+
+### Change Log
+
+- 2026-07-09: Implemented bounded binary upload; status set to review.

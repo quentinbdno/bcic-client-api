@@ -1,6 +1,10 @@
+---
+baseline_commit: b1f383f1fc11ad0e3d50214a46df2b647f37a06d
+---
+
 # Story 4.2: Retrieve Role and User Permissions
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that automation can evaluate BCIC access using typed data.
 
 ## Tasks / Subtasks
 
-- [ ] Define typed permission query and response models (AC: 1-4)
-  - [ ] Add `PermissionEntityType`, subject-specific allowed entity sets, and conditional `object_id`/`application_id` validation
-  - [ ] Normalize stable identity keys separately from dynamic permission-name keys and validate values atomically
-- [ ] Implement role/user permission methods through shared transport (AC: 1-4)
-  - [ ] Map SDK names to `roleId`/`userId`, `entityType`, optional `objId`/`appId`, and configured output
-  - [ ] Reuse one private execution/normalization path while retaining the different role/user validation rules
-- [ ] Add unit tests and run all quality gates (AC: 1-4)
-  - [ ] Cover every entity-type dependency, role/user differences, valid conditional field permission, empty list, malformed item, and mapped failures
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define typed permission query and response models (AC: 1-4)
+  - [x] Add `PermissionEntityType`, subject-specific allowed entity sets, and conditional `object_id`/`application_id` validation
+  - [x] Normalize stable identity keys separately from dynamic permission-name keys and validate values atomically
+- [x] Implement role/user permission methods through shared transport (AC: 1-4)
+  - [x] Map SDK names to `roleId`/`userId`, `entityType`, optional `objId`/`appId`, and configured output
+  - [x] Reuse one private execution/normalization path while retaining the different role/user validation rules
+- [x] Add unit tests and run all quality gates (AC: 1-4)
+  - [x] Cover every entity-type dependency, role/user differences, valid conditional field permission, empty list, malformed item, and mapped failures
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -75,9 +79,22 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- Permission validation matrix and atomic response tests passed.
+- Full suite and static quality gates passed.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added typed permission entities, dependency validation, and dynamic value normalization.
+- Added shared role/user permission execution with subject-specific rules.
 
 ### File List
 
+- bcic/endpoints/users.py
+- bcic/models/__init__.py
+- bcic/models/users.py
+- tests/unit/test_endpoints_users.py
+
+### Change Log
+
+- 2026-07-09: Implemented typed role/user permission retrieval; status set to review.

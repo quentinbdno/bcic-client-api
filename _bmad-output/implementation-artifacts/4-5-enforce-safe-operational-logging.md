@@ -1,6 +1,10 @@
+---
+baseline_commit: b1f383f1fc11ad0e3d50214a46df2b647f37a06d
+---
+
 # Story 4.5: Enforce Safe Operational Logging
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,19 +21,19 @@ so that I can diagnose operations without exposing credentials, sessions, or bin
 
 ## Tasks / Subtasks
 
-- [ ] Define centralized safe logging utilities and policy (AC: 1-4)
-  - [ ] Create module logger/redaction helpers with an explicit sensitive-key policy and recursive mapping/sequence handling
-  - [ ] Return redacted copies; never mutate caller data, inspect arbitrary object internals, or rely on regex-only secret discovery
-- [ ] Add operational logging at shared boundaries (AC: 1-3)
-  - [ ] Log method lifecycle and terminal failures in transport without URLs/query/body/header values
-  - [ ] Log authentication/session lifecycle without usernames/passwords/session IDs and endpoint operation names without payloads
-  - [ ] Avoid duplicate log records for the same event across endpoint and transport layers
-- [ ] Audit the package and harden exception diagnostics (AC: 1-4)
-  - [ ] Confirm no `print()`, handler configuration, raw payload/header logging, or secret-bearing exception interpolation exists
-  - [ ] Preserve exception types/causes while keeping public messages sanitized
-- [ ] Add capture tests and run all quality gates (AC: 1-4)
-  - [ ] Cover credentials, session/token/header values, nested mappings, binary bytes/Base64 markers, auth success/failure, retries, endpoint operations, and consumer-selected log levels
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define centralized safe logging utilities and policy (AC: 1-4)
+  - [x] Create module logger/redaction helpers with an explicit sensitive-key policy and recursive mapping/sequence handling
+  - [x] Return redacted copies; never mutate caller data, inspect arbitrary object internals, or rely on regex-only secret discovery
+- [x] Add operational logging at shared boundaries (AC: 1-3)
+  - [x] Log method lifecycle and terminal failures in transport without URLs/query/body/header values
+  - [x] Log authentication/session lifecycle without usernames/passwords/session IDs and endpoint operation names without payloads
+  - [x] Avoid duplicate log records for the same event across endpoint and transport layers
+- [x] Audit the package and harden exception diagnostics (AC: 1-4)
+  - [x] Confirm no `print()`, handler configuration, raw payload/header logging, or secret-bearing exception interpolation exists
+  - [x] Preserve exception types/causes while keeping public messages sanitized
+- [x] Add capture tests and run all quality gates (AC: 1-4)
+  - [x] Cover credentials, session/token/header values, nested mappings, binary bytes/Base64 markers, auth success/failure, retries, endpoint operations, and consumer-selected log levels
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -82,9 +86,24 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- Sanitizer, capture, context preservation, and consumer log-level tests passed.
+- Full suite, static gates, and forbidden logging configuration audit passed.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added recursive non-mutating redaction utilities with cycle/depth protection.
+- Added fixed-template, payload-free authentication and transport lifecycle logging.
+- Audited public exception messages and package logging configuration.
 
 ### File List
 
+- bcic/auth.py
+- bcic/transport.py
+- bcic/utils/__init__.py
+- bcic/utils/logging.py
+- tests/unit/test_logging.py
+
+### Change Log
+
+- 2026-07-09: Implemented safe operational logging and redaction; status set to review.

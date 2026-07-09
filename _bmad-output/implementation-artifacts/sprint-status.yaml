@@ -77,11 +77,11 @@ development_status:
 
   # Epic 4: User, Permission, and Binary Operations
   epic-4: in-progress
-  4-1-retrieve-roles: ready-for-dev
-  4-2-retrieve-role-and-user-permissions: ready-for-dev
-  4-3-retrieve-binary-data: ready-for-dev
-  4-4-upload-binary-data: ready-for-dev
-  4-5-enforce-safe-operational-logging: ready-for-dev
+  4-1-retrieve-roles: review
+  4-2-retrieve-role-and-user-permissions: review
+  4-3-retrieve-binary-data: review
+  4-4-upload-binary-data: review
+  4-5-enforce-safe-operational-logging: review
   epic-4-retrospective: optional
 
   # Epic 5: SDK Adoption, Maintainability, and Release Confidence

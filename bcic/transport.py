@@ -1,5 +1,6 @@
 """REST v1 HTTP transport and response parsing boundaries."""
 
+import logging
 import re
 from collections.abc import Mapping
 from typing import Literal, Protocol, cast
@@ -24,6 +25,7 @@ HTTPMethod = Literal["GET", "POST"]
 JSONMapping = dict[str, JSONValue]
 type JSONPayload = JSONMapping | list[JSONValue]
 _METHOD_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
+logger = logging.getLogger(__name__)
 
 
 def validate_method_name(method_name: str) -> None:
@@ -100,19 +102,38 @@ class RestTransport:
         if self._closed:
             raise APIError("Client is closed")
         validate_method_name(method_name)
+        logger.info(
+            "BCIC request started method=%s http_method=%s",
+            method_name,
+            http_method,
+        )
         url = f"{self._base_url}/rest/api/{method_name}"
         request_parameters = dict(parameters or {})
         request_headers = dict(headers or {})
         if authenticate and self.authentication is not None:
             request_headers.update(self.authentication.request_headers())
-        return self._retryer(
-            self._execute_once,
-            url,
-            request_parameters,
+        try:
+            result = self._retryer(
+                self._execute_once,
+                url,
+                request_parameters,
+                http_method,
+                output_format,
+                request_headers,
+            )
+        except Exception:
+            logger.error(
+                "BCIC request failed method=%s http_method=%s",
+                method_name,
+                http_method,
+            )
+            raise
+        logger.info(
+            "BCIC request completed method=%s http_method=%s",
+            method_name,
             http_method,
-            output_format,
-            request_headers,
         )
+        return result
 
     def _execute_once(
         self,
@@ -126,7 +147,13 @@ class RestTransport:
         try:
             response = self._send(url, request_parameters, http_method, request_headers)
         except (httpx.TimeoutException, httpx.NetworkError) as error:
+            logger.warning("BCIC request attempt network failure")
             raise NetworkError("BCIC request failed") from error
+        logger.debug(
+            "BCIC response received http_method=%s status_code=%d",
+            http_method,
+            response.status_code,
+        )
         self._raise_for_http_status(response.status_code)
         payload = self._parser.parse(response, output_format)
         if isinstance(payload, dict):

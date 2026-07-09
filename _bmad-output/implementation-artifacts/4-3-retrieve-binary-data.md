@@ -1,6 +1,10 @@
+---
+baseline_commit: b1f383f1fc11ad0e3d50214a46df2b647f37a06d
+---
+
 # Story 4.3: Retrieve Binary Data
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that I can process attachments without exposing payloads through diagnostics.
 
 ## Tasks / Subtasks
 
-- [ ] Define safe immutable binary models and decoding boundary (AC: 1-4)
-  - [ ] Add `BinaryMetadata` and `BinaryData`; exclude/restrict content representation so model repr never emits bytes
-  - [ ] Strictly validate the field-keyed JSON envelope, metadata strings, Base64 encoding, and decoded size
-- [ ] Implement bounded retrieval on `BinaryEndpoint` (AC: 1-4)
-  - [ ] Centralize `getBinaryData`; send `objName`, `id`, `fieldName`, and `output=json`
-  - [ ] Validate trimmed identifiers and positive `max_bytes` before network execution
-- [ ] Add safety-focused tests and run all quality gates (AC: 1-4)
-  - [ ] Cover success, exact/over limit, invalid Base64, mismatched field envelope, missing metadata, zero requests for invalid input, mapped failures, and absence of payload text in repr/logs/errors
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define safe immutable binary models and decoding boundary (AC: 1-4)
+  - [x] Add `BinaryMetadata` and `BinaryData`; exclude/restrict content representation so model repr never emits bytes
+  - [x] Strictly validate the field-keyed JSON envelope, metadata strings, Base64 encoding, and decoded size
+- [x] Implement bounded retrieval on `BinaryEndpoint` (AC: 1-4)
+  - [x] Centralize `getBinaryData`; send `objName`, `id`, `fieldName`, and `output=json`
+  - [x] Validate trimmed identifiers and positive `max_bytes` before network execution
+- [x] Add safety-focused tests and run all quality gates (AC: 1-4)
+  - [x] Cover success, exact/over limit, invalid Base64, mismatched field envelope, missing metadata, zero requests for invalid input, mapped failures, and absence of payload text in repr/logs/errors
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -75,9 +79,23 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- Binary retrieval boundary, limit, malformed payload, and failure tests passed.
+- Full suite and static quality gates passed.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added payload-safe immutable binary models and strict bounded Base64 decoding.
+- Added validated `getBinaryData` retrieval through shared transport.
 
 ### File List
 
+- bcic/endpoints/binary.py
+- bcic/models/__init__.py
+- bcic/models/binary.py
+- tests/unit/test_endpoints.py
+- tests/unit/test_endpoints_binary.py
+
+### Change Log
+
+- 2026-07-09: Implemented bounded binary retrieval; status set to review.
