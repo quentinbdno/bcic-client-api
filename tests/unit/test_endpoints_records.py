@@ -70,6 +70,7 @@ def test_get_record_reuses_auth_and_normalizes_dynamic_fields() -> None:
         ("Contact", " ", None, 0),
         ("Contact", "1", [], 0),
         ("Contact", "1", [" "], 0),
+        ("Contact", "1", ["name,active"], 0),
         ("Contact", "1", None, -1),
         ("Contact", "1", None, True),
     ],
@@ -186,6 +187,18 @@ def test_get_page_rejects_whole_page_when_one_record_is_invalid() -> None:
         client.records.get_page("view")
 
 
+def test_get_page_rejects_comma_delimited_object_and_field_names() -> None:
+    requests: list[httpx.Request] = []
+    client = make_client(requests, lambda request: httpx.Response(500))
+
+    with pytest.raises(ValidationError):
+        client.records.get_page("view", object_names=["Contact,User"])
+    with pytest.raises(ValidationError):
+        client.records.get_page("view", field_names=["name,email"])
+
+    assert requests == []
+
+
 def test_list_all_advances_offsets_without_replaying_pages() -> None:
     requests: list[httpx.Request] = []
 
@@ -231,6 +244,23 @@ def test_list_all_raises_instead_of_truncating_at_limits() -> None:
         client.records.list_all("view", page_size=2, max_pages=2, max_items=1)
 
 
+def test_list_all_rejects_repeated_full_page_identities() -> None:
+    requests: list[httpx.Request] = []
+    client = make_client(
+        requests,
+        lambda request: httpx.Response(
+            200,
+            json=[
+                {"objName": "Contact", "id": "1"},
+                {"objName": "Contact", "id": "2"},
+            ],
+        ),
+    )
+
+    with pytest.raises(ValidationError, match="duplicate page"):
+        client.records.list_all("view", page_size=2, max_pages=3, max_items=10)
+
+
 def test_create_flattens_validated_fields_and_returns_identity() -> None:
     requests: list[httpx.Request] = []
     client = make_client(
@@ -269,6 +299,18 @@ def test_create_rejects_invalid_fields_without_exposing_values(
 
     assert requests == []
     assert "value" not in str(error.value)
+
+
+def test_create_rejects_response_object_name_mismatch() -> None:
+    client = make_client(
+        [],
+        lambda request: httpx.Response(
+            200, json={"status": "ok", "objName": "Other", "id": "7"}
+        ),
+    )
+
+    with pytest.raises(ValidationError, match="Invalid create record response"):
+        client.records.create("Contact", {"name": "Ada"})
 
 
 def test_update_sends_only_supplied_changes_and_returns_status() -> None:

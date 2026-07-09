@@ -5,12 +5,19 @@ from bcic import Client
 from bcic.exceptions import ValidationError
 
 
-def make_client(requests: list[httpx.Request]) -> Client:
+def make_client(
+    requests: list[httpx.Request], response_json: object | None = None
+) -> Client:
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(request)
         if request.url.path.endswith("/login"):
             return httpx.Response(200, json={"status": "ok", "sessionId": "sid"})
-        return httpx.Response(200, json={"status": "ok", "value": 42})
+        return httpx.Response(
+            200,
+            json={"status": "ok", "value": 42}
+            if response_json is None
+            else response_json,
+        )
 
     return Client(
         base_url="https://example.test",
@@ -37,6 +44,17 @@ def test_generic_methods_execute_get_and_post_through_shared_transport() -> None
     )
     assert requests[2].read() == b'{"name":"Ada","output":"json"}'
     assert requests[1].headers["sessionid"] == "sid"
+
+
+def test_generic_methods_return_top_level_json_arrays() -> None:
+    requests: list[httpx.Request] = []
+    client = make_client(requests, response_json=[["id", "name"], ["1", "Ada"]])
+
+    result = client.methods.execute(
+        "selectQuery", {"query": "select id, name"}, http_method="POST"
+    )
+
+    assert result == [["id", "name"], ["1", "Ada"]]
 
 
 @pytest.mark.parametrize(

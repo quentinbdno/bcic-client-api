@@ -5,9 +5,9 @@ from typing import cast
 
 from bcic.config import OutputFormat
 from bcic.endpoints.base import BaseEndpoint
-from bcic.exceptions import APIError, ValidationError
+from bcic.exceptions import ValidationError
 from bcic.models.records import JSONValue
-from bcic.transport import HTTPMethod, JSONMapping, validate_method_name
+from bcic.transport import HTTPMethod, JSONPayload, validate_method_name
 
 
 def _is_json_value(value: object) -> bool:
@@ -36,7 +36,7 @@ class MethodsEndpoint(BaseEndpoint):
         *,
         http_method: HTTPMethod = "GET",
         output_format: OutputFormat | None = None,
-    ) -> JSONMapping:
+    ) -> JSONPayload:
         """Execute a lower-level method; prefer a domain endpoint when available.
 
         Args:
@@ -46,11 +46,10 @@ class MethodsEndpoint(BaseEndpoint):
             output_format: Optional configured parser format override.
 
         Returns:
-            A parsed JSON object.
+            A parsed JSON object or array.
 
         Raises:
             ValidationError: If method options or parameters are invalid.
-            APIError: If a successful response is not a JSON object.
             BCICError: For mapped request failures.
         """
         validate_method_name(method_name)
@@ -79,6 +78,4 @@ class MethodsEndpoint(BaseEndpoint):
             http_method=http_method,
             output_format=resolved_format,
         )
-        if not isinstance(result, dict):
-            raise APIError("Invalid BCIC response")
         return result

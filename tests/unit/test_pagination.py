@@ -93,3 +93,14 @@ def test_traversal_raises_item_limit_without_returning_partial_data() -> None:
             max_pages=2,
             max_items=1,
         )
+
+
+def test_traversal_detects_repeated_full_page_signatures() -> None:
+    with pytest.raises(ValidationError, match="duplicate page"):
+        traverse_pages(
+            lambda offset: page(offset, [1, 2]),
+            page_size=2,
+            max_pages=3,
+            max_items=10,
+            item_key=lambda item: item,
+        )

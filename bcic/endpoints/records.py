@@ -142,9 +142,9 @@ class RecordsEndpoint(BaseEndpoint):
             "onlyViewFields": options.only_view_fields,
         }
         if options.object_names:
-            parameters["objNames"] = ",".join(options.object_names)
+            parameters["objNames"] = _join_names(options.object_names, "object names")
         if options.field_names:
-            parameters["fieldList"] = ",".join(options.field_names)
+            parameters["fieldList"] = _join_names(options.field_names, "field names")
         if options.equality_filter:
             parameters["filterName"] = options.equality_filter.name
             parameters["filterValue"] = options.equality_filter.value
@@ -225,6 +225,7 @@ class RecordsEndpoint(BaseEndpoint):
             page_size=page_size,
             max_pages=max_pages,
             max_items=max_items,
+            item_key=lambda record: (record.object_name, record.record_id),
         )
 
     def create(
@@ -264,8 +265,11 @@ class RecordsEndpoint(BaseEndpoint):
         returned_object = payload.get("objName")
         returned_id = payload.get("id")
         try:
+            normalized_object = validate_identifier(returned_object, "create response")
+            if normalized_object != request.object_name:
+                raise ValidationError("Invalid create record response")
             return RecordCreationResult(
-                object_name=validate_identifier(returned_object, "create response"),
+                object_name=normalized_object,
                 record_id=validate_identifier(
                     str(returned_id) if isinstance(returned_id, int) else returned_id,
                     "create response",
@@ -358,6 +362,8 @@ def _join_names(values: Sequence[str], label: str) -> str:
     if isinstance(values, str) or not values:
         raise ValidationError(f"Invalid {label}")
     normalized = [validate_identifier(value, label) for value in values]
+    if any("," in value for value in normalized):
+        raise ValidationError(f"Invalid {label}")
     return ",".join(normalized)
 
 

@@ -1,6 +1,6 @@
 """Typed record paging options and bounded traversal."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 
 from pydantic import Field, field_validator
 
@@ -62,12 +62,14 @@ def traverse_pages[T](
     page_size: int,
     max_pages: int,
     max_items: int,
+    item_key: Callable[[T], Hashable] | None = None,
 ) -> list[T]:
     """Fetch complete pages eagerly, raising instead of truncating."""
     if page_size <= 0 or max_pages <= 0 or max_items <= 0:
         raise ValidationError("Pagination limits must be positive")
     items: list[T] = []
     requested_offsets: set[int] = set()
+    full_page_signatures: set[tuple[Hashable, ...]] = set()
     offset = 0
     pages = 0
     while True:
@@ -83,6 +85,11 @@ def traverse_pages[T](
             raise ValidationError("Pagination did not advance")
         if len(items) + len(page.items) > max_items:
             raise PaginationLimitError("Maximum item limit reached")
+        if item_key is not None and len(page.items) == page_size:
+            signature = tuple(item_key(item) for item in page.items)
+            if signature in full_page_signatures:
+                raise ValidationError("Pagination returned duplicate page data")
+            full_page_signatures.add(signature)
         items.extend(page.items)
         if not page.items or len(page.items) < page_size or metadata.has_more is False:
             return items
