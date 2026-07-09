@@ -1,6 +1,10 @@
+---
+baseline_commit: 34f7e1fe4e572f92b219073dd796bb200da563d1
+---
+
 # Story 3.6: Delete Records
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,14 +21,14 @@ so that I can remove records without constructing a low-level call.
 
 ## Tasks / Subtasks
 
-- [ ] Define immutable `RecordDeletionResult` and identifier validation reuse (AC: 1-4)
-  - [ ] Normalize documented status/message without inventing a hard-delete guarantee
-- [ ] Implement `RecordsEndpoint.delete()` through `deleteRecord` (AC: 1-4)
-  - [ ] Use documented GET support because current transport intentionally supports GET/POST only
-  - [ ] Centralize method metadata and add configured JSON output
-- [ ] Add tests and run all quality gates (AC: 1-4)
-  - [ ] Cover exact request, typed result, invalid identifiers/no network, malformed response, and every mapped error class relevant to the AC
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define immutable `RecordDeletionResult` and identifier validation reuse (AC: 1-4)
+  - [x] Normalize documented status/message without inventing a hard-delete guarantee
+- [x] Implement `RecordsEndpoint.delete()` through `deleteRecord` (AC: 1-4)
+  - [x] Use documented GET support because current transport intentionally supports GET/POST only
+  - [x] Centralize method metadata and add configured JSON output
+- [x] Add tests and run all quality gates (AC: 1-4)
+  - [x] Cover exact request, typed result, invalid identifiers/no network, malformed response, and every mapped error class relevant to the AC
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -69,9 +73,26 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Implemented GET-based delete and typed status normalization.
+
+### Implementation Plan
+
+- Reuse shared identifiers and status normalization, retain transport-owned authentication, and document server-defined deletion semantics.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added typed delete result and exact GET request behavior with Recycle Bin semantics documented.
+- Added local validation, malformed response, and mapped HTTP failure coverage.
+- Validated with 98 passing tests, Ruff format/check, and strict mypy.
 
 ### File List
 
+- bcic/endpoints/records.py
+- bcic/models/__init__.py
+- bcic/models/records.py
+- tests/unit/test_endpoints_records.py
+
+## Change Log
+
+- 2026-07-09: Added typed record deletion.

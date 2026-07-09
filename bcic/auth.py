@@ -27,6 +27,8 @@ class SessionAuth:
             },
             authenticate=False,
         )
+        if not isinstance(payload, dict):
+            raise AuthenticationError("BCIC authentication failed")
         session_id = payload.get("sessionId")
         if payload.get("status") != "ok" or not isinstance(session_id, str):
             raise AuthenticationError("BCIC authentication failed")

@@ -37,7 +37,7 @@ def test_parser_normalizes_json_object() -> None:
     [
         httpx.Response(200, content=b""),
         httpx.Response(200, content=b"not json"),
-        httpx.Response(200, json=[1, 2]),
+        httpx.Response(200, json="invalid"),
     ],
 )
 def test_parser_rejects_invalid_json_without_raw_details(

@@ -38,8 +38,11 @@ class PageMetadata(SDKModel):
 
     page: int = Field(ge=1)
     page_size: int = Field(ge=1)
-    total_items: int = Field(ge=0)
-    total_pages: int = Field(ge=0)
+    start_row: int = Field(default=0, ge=0)
+    returned_count: int = Field(default=0, ge=0)
+    has_more: bool | None = None
+    total_items: int | None = Field(default=None, ge=0)
+    total_pages: int | None = Field(default=None, ge=0)
 
 
 class Page[T](SDKModel):

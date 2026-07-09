@@ -22,6 +22,7 @@ from bcic.models.records import JSONValue
 
 HTTPMethod = Literal["GET", "POST"]
 JSONMapping = dict[str, JSONValue]
+type JSONPayload = JSONMapping | list[JSONValue]
 _METHOD_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 
 
@@ -43,19 +44,20 @@ class ResponseParser:
 
     def parse(
         self, response: httpx.Response, output_format: OutputFormat
-    ) -> JSONMapping:
-        """Parse a successful response into a JSON mapping."""
+    ) -> JSONPayload:
+        """Parse a successful response into a JSON mapping or array."""
         if output_format != "json":
             raise ValidationError(f"Unsupported output format: {output_format}")
         try:
             payload = response.json()
         except (ValueError, UnicodeDecodeError) as error:
             raise APIError("Invalid BCIC response") from error
-        if not isinstance(payload, dict) or not all(
-            isinstance(key, str) for key in payload
-        ):
+        if isinstance(payload, dict) and all(isinstance(key, str) for key in payload):
+            return cast(JSONMapping, payload)
+        if isinstance(payload, list):
+            return cast(list[JSONValue], payload)
+        else:
             raise APIError("Invalid BCIC response")
-        return cast(JSONMapping, payload)
 
 
 class RestTransport:
@@ -93,7 +95,7 @@ class RestTransport:
         output_format: OutputFormat = "json",
         headers: Mapping[str, str] | None = None,
         authenticate: bool = True,
-    ) -> JSONMapping:
+    ) -> JSONPayload:
         """Execute one validated REST v1 method."""
         if self._closed:
             raise APIError("Client is closed")
@@ -119,7 +121,7 @@ class RestTransport:
         http_method: HTTPMethod,
         output_format: OutputFormat,
         request_headers: Mapping[str, str],
-    ) -> JSONMapping:
+    ) -> JSONPayload:
         """Perform and map one HTTP attempt."""
         try:
             response = self._send(url, request_parameters, http_method, request_headers)
@@ -127,7 +129,8 @@ class RestTransport:
             raise NetworkError("BCIC request failed") from error
         self._raise_for_http_status(response.status_code)
         payload = self._parser.parse(response, output_format)
-        self._raise_for_bcic_status(payload)
+        if isinstance(payload, dict):
+            self._raise_for_bcic_status(payload)
         return payload
 
     def _send(

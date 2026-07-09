@@ -67,12 +67,12 @@ development_status:
 
   # Epic 3: Record Data Automation
   epic-3: in-progress
-  3-1-retrieve-a-single-record: ready-for-dev
-  3-2-retrieve-and-search-paged-records: ready-for-dev
-  3-3-traverse-all-record-pages-safely: ready-for-dev
-  3-4-create-records: ready-for-dev
-  3-5-update-records: ready-for-dev
-  3-6-delete-records: ready-for-dev
+  3-1-retrieve-a-single-record: review
+  3-2-retrieve-and-search-paged-records: review
+  3-3-traverse-all-record-pages-safely: review
+  3-4-create-records: review
+  3-5-update-records: review
+  3-6-delete-records: review
   epic-3-retrospective: optional
 
   # Epic 4: User, Permission, and Binary Operations
@@ -85,11 +85,11 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: SDK Adoption, Maintainability, and Release Confidence
-  epic-5: backlog
-  5-1-establish-mockable-unit-test-infrastructure: backlog
-  5-2-cover-public-sdk-behavior: backlog
-  5-3-enforce-automated-quality-gates: backlog
-  5-4-publish-consumer-documentation: backlog
-  5-5-provide-examples-and-public-api-docstrings: backlog
-  5-6-define-release-and-compatibility-governance: backlog
+  epic-5: in-progress
+  5-1-establish-mockable-unit-test-infrastructure: ready-for-dev
+  5-2-cover-public-sdk-behavior: ready-for-dev
+  5-3-enforce-automated-quality-gates: ready-for-dev
+  5-4-publish-consumer-documentation: ready-for-dev
+  5-5-provide-examples-and-public-api-docstrings: ready-for-dev
+  5-6-define-release-and-compatibility-governance: ready-for-dev
   epic-5-retrospective: optional

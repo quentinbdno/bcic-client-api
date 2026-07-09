@@ -1,6 +1,10 @@
+---
+baseline_commit: 34f7e1fe4e572f92b219073dd796bb200da563d1
+---
+
 # Story 3.4: Create Records
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that I can submit dynamic fields without invoking a generic REST method.
 
 ## Tasks / Subtasks
 
-- [ ] Define immutable `CreateRecordRequest` and `RecordCreationResult` models (AC: 1-4)
-  - [ ] Require trimmed object name and a non-empty JSON-compatible field mapping with valid non-empty string keys
-  - [ ] Reject reserved keys (`objName`, `id`, `useIds`, `output`, `sessionId`) case-insensitively
-- [ ] Implement `RecordsEndpoint.create()` through `createRecord` (AC: 1-4)
-  - [ ] Flatten validated dynamic fields into documented POST parameters without logging/embedding the payload in errors
-  - [ ] Normalize documented `id`/`objName` response keys into the typed result
-- [ ] Add tests and run all quality gates (AC: 1-4)
-  - [ ] Cover exact POST JSON, success result, empty/invalid/reserved fields, malformed response, and mapped BCIC validation/authorization failures
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define immutable `CreateRecordRequest` and `RecordCreationResult` models (AC: 1-4)
+  - [x] Require trimmed object name and a non-empty JSON-compatible field mapping with valid non-empty string keys
+  - [x] Reject reserved keys (`objName`, `id`, `useIds`, `output`, `sessionId`) case-insensitively
+- [x] Implement `RecordsEndpoint.create()` through `createRecord` (AC: 1-4)
+  - [x] Flatten validated dynamic fields into documented POST parameters without logging/embedding the payload in errors
+  - [x] Normalize documented `id`/`objName` response keys into the typed result
+- [x] Add tests and run all quality gates (AC: 1-4)
+  - [x] Cover exact POST JSON, success result, empty/invalid/reserved fields, malformed response, and mapped BCIC validation/authorization failures
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -72,9 +76,26 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Implemented sanitized dynamic-field validation and create request/result flow.
+
+### Implementation Plan
+
+- Validate immutable write input before transport, flatten only approved fields, and normalize the documented creation identity.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added immutable create request/result models and case-insensitive protocol-key protection.
+- Added exact POST payload, local rejection, result, and failure coverage.
+- Validated with 98 passing tests, Ruff format/check, and strict mypy.
 
 ### File List
 
+- bcic/endpoints/records.py
+- bcic/models/__init__.py
+- bcic/models/records.py
+- tests/unit/test_endpoints_records.py
+
+## Change Log
+
+- 2026-07-09: Added typed record creation.

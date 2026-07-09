@@ -13,6 +13,10 @@ class ValidationError(BCICError):
     """Raised when data fails validation at a public SDK model boundary."""
 
 
+class PaginationLimitError(ValidationError):
+    """Raised when bounded traversal reaches a configured safeguard."""
+
+
 class APIError(BCICError):
     """Raised for a generic BCIC API or response failure."""
 

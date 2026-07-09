@@ -46,4 +46,11 @@ def test_endpoints_share_one_private_composition_context() -> None:
 def test_rest_method_metadata_is_owned_by_each_endpoint_module() -> None:
     endpoints = (RecordsEndpoint, UsersEndpoint, BinaryEndpoint, MethodsEndpoint)
 
-    assert all(endpoint.REST_METHODS == () for endpoint in endpoints)
+    assert RecordsEndpoint.REST_METHODS == (
+        "getRecord",
+        "getPage",
+        "createRecord",
+        "updateRecord",
+        "deleteRecord",
+    )
+    assert all(endpoint.REST_METHODS == () for endpoint in endpoints[1:])

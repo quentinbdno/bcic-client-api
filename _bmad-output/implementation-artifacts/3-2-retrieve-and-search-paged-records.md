@@ -1,6 +1,10 @@
+---
+baseline_commit: 34f7e1fe4e572f92b219073dd796bb200da563d1
+---
+
 # Story 3.2: Retrieve and Search Paged Records
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,18 +21,18 @@ so that I can process bounded record sets without constructing URLs or query str
 
 ## Tasks / Subtasks
 
-- [ ] Define immutable typed page options and response normalization (AC: 1-4)
-  - [ ] Model `view_id`, `start_row`, `page_size`, `composite`, optional object/field names, and optional equality filter
-  - [ ] Normalize the full record collection atomically and derive page number/completion metadata without fabricating unavailable totals
-- [ ] Implement one-page record retrieval through `getPage` (AC: 1, 2, 4)
-  - [ ] Map options to `viewId`, `startRow`, `rowsPerPage`, `composite`, `objNames`, `fieldList`, `filterName`, `filterValue`, `onlyViewFields`, and `output`
-  - [ ] Keep method constants and response-shape handling centralized
-- [ ] Add a safe typed search/select surface only if its result can satisfy `Page[DynamicRecord]` (AC: 3, 4)
-  - [ ] Do not expose raw SQL as a high-level convenience; `client.methods` remains the explicit lower-level escape hatch
-  - [ ] Account for official `search` returning IDs and `selectQuery` returning 2D rows, not record objects
-- [ ] Add tests and run all quality gates (AC: 1-4)
-  - [ ] Cover first/later/short/empty pages, filters, invalid options, malformed item/page data, and no partial return
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define immutable typed page options and response normalization (AC: 1-4)
+  - [x] Model `view_id`, `start_row`, `page_size`, `composite`, optional object/field names, and optional equality filter
+  - [x] Normalize the full record collection atomically and derive page number/completion metadata without fabricating unavailable totals
+- [x] Implement one-page record retrieval through `getPage` (AC: 1, 2, 4)
+  - [x] Map options to `viewId`, `startRow`, `rowsPerPage`, `composite`, `objNames`, `fieldList`, `filterName`, `filterValue`, `onlyViewFields`, and `output`
+  - [x] Keep method constants and response-shape handling centralized
+- [x] Add a safe typed search/select surface only if its result can satisfy `Page[DynamicRecord]` (AC: 3, 4)
+  - [x] Do not expose raw SQL as a high-level convenience; `client.methods` remains the explicit lower-level escape hatch
+  - [x] Account for official `search` returning IDs and `selectQuery` returning 2D rows, not record objects
+- [x] Add tests and run all quality gates (AC: 1-4)
+  - [x] Cover first/later/short/empty pages, filters, invalid options, malformed item/page data, and no partial return
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -79,9 +83,30 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Extended parser payload support and implemented atomic page normalization.
+
+### Implementation Plan
+
+- Add typed paging primitives, support documented array payloads at the parser boundary, and expose only record-shaped `getPage` results.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added immutable page options, equality filtering, optional authoritative totals, and atomic record-page normalization.
+- Deliberately retained raw search/select only on `client.methods` because their response shapes cannot satisfy `Page[DynamicRecord]`.
+- Validated with 98 passing tests, Ruff format/check, and strict mypy.
 
 ### File List
 
+- bcic/auth.py
+- bcic/endpoints/methods.py
+- bcic/endpoints/records.py
+- bcic/models/common.py
+- bcic/pagination.py
+- bcic/transport.py
+- tests/unit/test_endpoints_records.py
+- tests/unit/test_transport.py
+
+## Change Log
+
+- 2026-07-09: Added typed one-page retrieval and honest pagination metadata.

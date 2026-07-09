@@ -1,6 +1,10 @@
+---
+baseline_commit: 34f7e1fe4e572f92b219073dd796bb200da563d1
+---
+
 # Story 3.1: Retrieve a Single Record
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that I can use record data without calling a generic REST method or parsing a
 
 ## Tasks / Subtasks
 
-- [ ] Define record response normalization at the model boundary (AC: 2, 3)
-  - [ ] Accept documented JSON record keys (`objName`, `id`) and separate remaining field values into `fields`
-  - [ ] Reject missing/empty identity, non-mapping data, non-JSON field values, and requested/returned identity mismatches
-- [ ] Implement `RecordsEndpoint.get()` using shared transport (AC: 1, 3, 4)
-  - [ ] Centralize `getRecord` in `REST_METHODS`; send `objNames`, `id`, `composite`, optional comma-joined `fieldList`, and configured `output`
-  - [ ] Validate non-empty trimmed names/IDs, `composite >= 0`, and non-empty field names before network execution
-- [ ] Add focused unit tests and run all quality gates (AC: 1-4)
-  - [ ] Cover request shape, authentication reuse, normalization, input rejection without network calls, malformed payloads, identity mismatch, and mapped failures
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define record response normalization at the model boundary (AC: 2, 3)
+  - [x] Accept documented JSON record keys (`objName`, `id`) and separate remaining field values into `fields`
+  - [x] Reject missing/empty identity, non-mapping data, non-JSON field values, and requested/returned identity mismatches
+- [x] Implement `RecordsEndpoint.get()` using shared transport (AC: 1, 3, 4)
+  - [x] Centralize `getRecord` in `REST_METHODS`; send `objNames`, `id`, `composite`, optional comma-joined `fieldList`, and configured `output`
+  - [x] Validate non-empty trimmed names/IDs, `composite >= 0`, and non-empty field names before network execution
+- [x] Add focused unit tests and run all quality gates (AC: 1-4)
+  - [x] Cover request shape, authentication reuse, normalization, input rejection without network calls, malformed payloads, identity mismatch, and mapped failures
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -75,9 +79,25 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Implemented normalization, endpoint execution, and focused mock-transport coverage.
+
+### Implementation Plan
+
+- Establish a sanitized record-model boundary, compose it through shared transport, then validate request and failure behavior with unit tests.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Implemented typed single-record retrieval with identity validation and sanitized normalization.
+- Validated with 98 passing tests, Ruff format/check, and strict mypy.
 
 ### File List
 
+- bcic/endpoints/records.py
+- bcic/models/records.py
+- tests/unit/test_endpoints.py
+- tests/unit/test_endpoints_records.py
+
+## Change Log
+
+- 2026-07-09: Added typed single-record retrieval and response normalization.

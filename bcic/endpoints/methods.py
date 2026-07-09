@@ -5,7 +5,7 @@ from typing import cast
 
 from bcic.config import OutputFormat
 from bcic.endpoints.base import BaseEndpoint
-from bcic.exceptions import ValidationError
+from bcic.exceptions import APIError, ValidationError
 from bcic.models.records import JSONValue
 from bcic.transport import HTTPMethod, JSONMapping, validate_method_name
 
@@ -50,9 +50,12 @@ class MethodsEndpoint(BaseEndpoint):
             raise ValidationError("Invalid REST method parameters")
         request_parameters = cast(dict[str, JSONValue], dict(parameters or {}))
         request_parameters["output"] = resolved_format
-        return self._context.transport.transport.execute(
+        result = self._context.transport.transport.execute(
             method_name,
             request_parameters,
             http_method=http_method,
             output_format=resolved_format,
         )
+        if not isinstance(result, dict):
+            raise APIError("Invalid BCIC response")
+        return result

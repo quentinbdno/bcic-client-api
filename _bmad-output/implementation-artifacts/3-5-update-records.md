@@ -1,6 +1,10 @@
+---
+baseline_commit: 34f7e1fe4e572f92b219073dd796bb200da563d1
+---
+
 # Story 3.5: Update Records
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,15 +21,15 @@ so that I can change record data without replacing unrelated fields or construct
 
 ## Tasks / Subtasks
 
-- [ ] Define immutable `UpdateRecordRequest` and `RecordUpdateResult` (AC: 1-4)
-  - [ ] Require trimmed object/record identifiers and a non-empty JSON-compatible change mapping
-  - [ ] Reject reserved protocol keys case-insensitively and preserve only explicitly supplied changes
-- [ ] Implement `RecordsEndpoint.update()` through `updateRecord` POST (AC: 1-4)
-  - [ ] Map `object_name`→`objName`, `record_id`→`id`, `use_ids`→`useIds`, add output, then flatten changes
-  - [ ] Normalize status/message without echoing request fields or fabricating a returned record
-- [ ] Add tests and run all quality gates (AC: 1-4)
-  - [ ] Cover exact minimal payload, single/multiple changes, invalid input with no network, malformed success, and mapped failures
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Define immutable `UpdateRecordRequest` and `RecordUpdateResult` (AC: 1-4)
+  - [x] Require trimmed object/record identifiers and a non-empty JSON-compatible change mapping
+  - [x] Reject reserved protocol keys case-insensitively and preserve only explicitly supplied changes
+- [x] Implement `RecordsEndpoint.update()` through `updateRecord` POST (AC: 1-4)
+  - [x] Map `object_name`→`objName`, `record_id`→`id`, `use_ids`→`useIds`, add output, then flatten changes
+  - [x] Normalize status/message without echoing request fields or fabricating a returned record
+- [x] Add tests and run all quality gates (AC: 1-4)
+  - [x] Cover exact minimal payload, single/multiple changes, invalid input with no network, malformed success, and mapped failures
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -71,9 +75,26 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Reused write validators and implemented minimal partial-update payloads.
+
+### Implementation Plan
+
+- Reuse create-time collision rules, send only explicit changes, and expose an honest status result rather than record data.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added immutable update request/result models and minimal partial-update POST behavior.
+- Added sanitized malformed-response and mapped-failure coverage.
+- Validated with 98 passing tests, Ruff format/check, and strict mypy.
 
 ### File List
 
+- bcic/endpoints/records.py
+- bcic/models/__init__.py
+- bcic/models/records.py
+- tests/unit/test_endpoints_records.py
+
+## Change Log
+
+- 2026-07-09: Added typed partial record updates.
