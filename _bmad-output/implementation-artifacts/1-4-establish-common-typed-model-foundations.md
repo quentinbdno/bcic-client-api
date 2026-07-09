@@ -4,7 +4,7 @@ baseline_commit: 735639e6fedc09bcbbf016cecf1cfc1898558cfa
 
 # Story 1.4: Establish Common Typed Model Foundations
 
-Status: review
+Status: done
 
 ## Story
 
@@ -33,6 +33,13 @@ so that SDK results have a predictable shape while still supporting BCIC's varia
   - [x] Export deliberate model names from `bcic.models`, without changing top-level `bcic.__all__`.
   - [x] Test valid serialization, generics, recursive dynamic values, invalid data, and sanitized errors.
   - [x] Run complete pytest, Ruff, mypy, and Poetry checks.
+
+### Review Findings
+
+- [x] [Review][Patch] Reject NaN and infinity from JSON-compatible dynamic fields [bcic/models/records.py:7]
+- [x] [Review][Patch] Reject whitespace-only dynamic-record identities [bcic/models/records.py:14]
+- [x] [Review][Patch] Enforce strict field types in the strict SDK model base [bcic/models/common.py:18]
+- [x] [Review][Patch] Prevent mutation of nested collections in frozen SDK models [bcic/models/common.py:48]
 
 ## Dev Notes
 

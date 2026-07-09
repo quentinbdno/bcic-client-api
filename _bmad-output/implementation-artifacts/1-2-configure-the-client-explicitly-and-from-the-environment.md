@@ -4,7 +4,7 @@ baseline_commit: 735639e6fedc09bcbbf016cecf1cfc1898558cfa
 
 # Story 1.2: Configure the Client Explicitly and From the Environment
 
-Status: review
+Status: done
 
 ## Story
 
@@ -55,6 +55,13 @@ so that I can use the same SDK safely in local development, tests, and deployed 
   - [x] Cover missing/invalid values and assert representative secrets are absent from repr and exception text.
   - [x] Verify importing `bcic` does not read environment variables or configure/emit logs.
   - [x] Run pytest, Ruff lint/format, strict mypy, and Poetry package checks.
+
+### Review Findings
+
+- [x] [Review][Patch] Reject malformed base URL authorities and ports [bcic/config.py:28]
+- [x] [Review][Patch] Reject whitespace-only usernames and passwords [bcic/config.py:17]
+- [x] [Review][Patch] Reject non-finite timeout and retry-wait values [bcic/config.py:19]
+- [x] [Review][Patch] Reject booleans for the retry-count field [bcic/config.py:20]
 
 ## Dev Notes
 

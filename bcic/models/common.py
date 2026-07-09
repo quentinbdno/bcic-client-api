@@ -4,6 +4,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    field_validator,
 )
 from pydantic import (
     ValidationError as PydanticValidationError,
@@ -16,7 +17,7 @@ from bcic.utils.logging import sanitize_context
 class SDKModel(BaseModel):
     """Strict immutable model with a sanitized SDK validation boundary."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     def __init__(self, **data: object) -> None:
         try:
@@ -54,5 +55,13 @@ class PageMetadata(SDKModel):
 class Page[T](SDKModel):
     """A typed page of SDK results and its pagination metadata."""
 
-    items: list[T]
+    items: tuple[T, ...]
     metadata: PageMetadata
+
+    @field_validator("items", mode="before")
+    @classmethod
+    def freeze_items(cls, value: object) -> object:
+        """Store page items immutably while accepting ordinary sequences."""
+        if isinstance(value, list | tuple):
+            return tuple(value)
+        return value

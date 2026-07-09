@@ -159,7 +159,7 @@ class RecordsEndpoint(BaseEndpoint):
         if has_more is None:
             has_more = len(items) == options.page_size
         return Page[DynamicRecord](
-            items=items,
+            items=tuple(items),
             metadata=PageMetadata(
                 page=(options.start_row // options.page_size) + 1,
                 page_size=options.page_size,
