@@ -14,8 +14,8 @@ so that I can automate complete retrieval without writing pagination loops.
 
 ## Acceptance Criteria
 
-1. `client.records.list_all(...)` delegates every page request to the Story 3.2 one-page operation and returns typed `DynamicRecord` values in stable page order.
-2. Positive `page_size`, `max_pages`, and `max_items` safeguards are validated before network execution; reaching a safeguard before natural completion raises a documented typed limit exception and never silently truncates.
+1. `client.records.list_all(view_id, *, start_row=0, page_size=100, max_pages=100, max_items=10000, object_name=None, field_names=None, composite=0, filter_name=None, filter_value=None, only_view_fields=False)` delegates every page request to the Story 3.2 one-page operation and returns typed `DynamicRecord` values in stable page order.
+2. Positive `page_size`, `max_pages`, and `max_items` safeguards are validated before network execution; reaching a safeguard before natural completion raises a documented typed limit exception and never silently truncates. Defaults are conservative and callers may lower limits, but may not disable them.
 3. Traversal stops naturally on authoritative completion metadata, an empty page, or a short page; it detects non-advancing pagination and raises rather than looping.
 4. A failed page uses normal transport retry/exception behavior, is not skipped, and does not cause the helper itself to replay earlier successful pages.
 
@@ -23,7 +23,7 @@ so that I can automate complete retrieval without writing pagination loops.
 
 - [x] Implement a reusable bounded pagination traversal helper (AC: 1-4)
   - [x] Put traversal state and limits in `bcic/pagination.py`; accept a typed page-fetch callback
-  - [x] Track requested offsets, yielded item count, completion, and non-advancing states deterministically
+  - [x] Track requested offsets, yielded item count, completion, duplicate full-page identities, and non-advancing states deterministically
 - [x] Expose `RecordsEndpoint.list_all()` by composing the one-page method (AC: 1-4)
   - [x] Pass the same typed selection/filter options on every page and advance only the paging cursor
   - [x] Choose and document eager `list[DynamicRecord]` semantics; do not return partial data on limit/failure
@@ -37,9 +37,9 @@ so that I can automate complete retrieval without writing pagination loops.
 
 - Reuse Story 3.2 page options, `Page`, and page-fetch implementation. Endpoint code should only adapt record options into the shared pagination helper.
 - Define a dedicated SDK exception such as `PaginationLimitError(ValidationError)` if limits are exceptional; make the public contract explicit and export it consistently.
-- Validate safeguards before fetching. If adding the next page would exceed `max_items`, raise without returning a truncated list.
+- Validate safeguards before fetching. If another full-size page would exceed `max_items`, request a reduced final page up to the remaining item budget when the one-page operation supports it; if the backend still returns more than the remaining budget or indicates more data after the budget is exhausted, raise without returning a truncated list.
 - Do not implement independent retries. `RestTransport.execute()` owns retries per page; traversal calls each logical page once.
-- Avoid offset arithmetic based solely on returned count when the backend contract expects fixed `rowsPerPage`; advance by the documented page cursor/size and verify progress.
+- Avoid offset arithmetic based solely on returned count when the backend contract expects fixed `rowsPerPage`; advance by the documented page cursor/size and verify progress. Also detect repeated full pages with the same ordered record identities, even when requested offsets advance, because that indicates the backend ignored the paging cursor.
 
 ### Architecture Compliance
 
@@ -56,7 +56,7 @@ so that I can automate complete retrieval without writing pagination loops.
 
 - UPDATE: `bcic/pagination.py`, `bcic/endpoints/records.py`, `bcic/exceptions.py` and exports if a new public exception is introduced.
 - UPDATE/NEW tests: `tests/unit/test_pagination.py`, `tests/unit/test_endpoints_records.py`.
-- Prefer pure unit tests for the generic traversal state machine plus endpoint integration tests for request offsets.
+- Prefer pure unit tests for the generic traversal state machine plus endpoint integration tests for request offsets, reduced final-page requests, max-item exhaustion, and repeated full-page identity detection.
 
 ### Previous Story Intelligence
 

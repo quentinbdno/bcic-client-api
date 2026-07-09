@@ -16,15 +16,15 @@ so that I can remove records without constructing a low-level call.
 
 1. `client.records.delete(object_name, record_id)` validates both identifiers and invokes REST v1 `deleteRecord` through shared authentication, transport, parsing, and exception mapping.
 2. The request sends only `objName`, `id`, and configured output; no raw URL or session ID appears in endpoint code.
-3. Success returns a typed deletion result identifying the requested object/record and successful status; documentation states that normal Platform records move to the Recycle Bin while external-object behavior is server-defined.
+3. Success returns a typed deletion result identifying the requested object/record and successful status; documentation states that normal Platform records move to the Recycle Bin while external-object behavior is server-defined. A parsed 2xx response whose status envelope indicates failure is mapped to the corresponding SDK exception, not normalized as success.
 4. Invalid local input sends no request; missing, denied, invalid, server, and malformed responses map to the corresponding sanitized SDK exception without exposing raw HTTP/BCIC structures.
 
 ## Tasks / Subtasks
 
 - [x] Define immutable `RecordDeletionResult` and identifier validation reuse (AC: 1-4)
-  - [x] Normalize documented status/message without inventing a hard-delete guarantee
+  - [x] Normalize documented status/message without inventing a hard-delete guarantee; reject failure status envelopes
 - [x] Implement `RecordsEndpoint.delete()` through `deleteRecord` (AC: 1-4)
-  - [x] Use documented GET support because current transport intentionally supports GET/POST only
+  - [x] Use documented GET support because current transport intentionally supports GET/POST only, and do not add independent delete retries outside the shared transport policy
   - [x] Centralize method metadata and add configured JSON output
 - [x] Add tests and run all quality gates (AC: 1-4)
   - [x] Cover exact request, typed result, invalid identifiers/no network, malformed response, and every mapped error class relevant to the AC
@@ -34,10 +34,11 @@ so that I can remove records without constructing a low-level call.
 
 ### Technical Requirements
 
-- Official `deleteRecord` supports DELETE or GET. Use GET to avoid expanding the shared `HTTPMethod` contract solely for this operation; document this intentional choice.
+- Official `deleteRecord` supports DELETE or GET. Use GET to avoid expanding the shared `HTTPMethod` contract solely for this operation; document this intentional choice. Because this is a destructive operation over GET, endpoint code must not add custom replay loops, client-side caching assumptions, or additional retries beyond the existing transport policy.
 - The operation moves normal Platform records to the Recycle Bin and deletes external objects according to server behavior. The SDK result must say the request succeeded, not promise irreversible deletion.
 - Official parameters are `objName`, `id`, `output`, plus transport-owned authentication.
 - Reuse identifier validation from get/update. Do not duplicate validators or expose raw status payloads.
+- Only documented success statuses may produce `RecordDeletionResult`; documented failure statuses in otherwise successful HTTP responses must go through the shared SDK exception mapping.
 
 ### Architecture Compliance
 
@@ -48,12 +49,12 @@ so that I can remove records without constructing a low-level call.
 ### Current State and Preservation
 
 - Stories 3.1-3.5 establish all record endpoint validation, method metadata, result models, and response normalization. Keep delete as a focused addition.
-- Existing transport already maps HTTP 404/403/400/5xx. Preserve those mappings and retry only server/network/rate-limit failures.
+- Existing transport already maps HTTP 404/403/400/5xx. Preserve those mappings and retry only server/network/rate-limit failures under the shared transport policy; do not add endpoint-level delete retries.
 
 ### File Structure and Testing
 
 - UPDATE: `bcic/models/records.py`, exports, `bcic/endpoints/records.py`, record endpoint/model tests.
-- No new module or dependency is expected.
+- No new module or dependency is expected. Tests must include a 2xx response containing a failure status and verify it does not produce a deletion result.
 
 ### Previous Story Intelligence
 

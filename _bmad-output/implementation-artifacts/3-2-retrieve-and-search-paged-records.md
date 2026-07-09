@@ -16,7 +16,7 @@ so that I can process bounded record sets without constructing URLs or query str
 
 1. The records endpoint exposes typed page retrieval using REST v1 `getPage`, with validated view ID, zero-based start row, positive page size, and typed optional filters/field selection.
 2. A successful response is normalized into shared `Page[DynamicRecord]`; page metadata is independent of the REST method name and uses deterministic values when BCIC omits totals.
-3. Search/select behavior, if exposed by this story, uses a typed criteria object that constructs the documented query internally; callers are not required to pass a raw SQL/query string through the high-level endpoint.
+3. Search/select behavior remains available only through the lower-level `client.methods` escape hatch in this story because official `search` returns IDs and `selectQuery` returns tabular rows; the high-level records endpoint must not expose raw SQL/query-string construction or claim those responses are `Page[DynamicRecord]` without a documented hydration strategy.
 4. Invalid bounds/criteria and malformed or partially valid pages raise a sanitized SDK exception before any partial page is returned.
 
 ## Tasks / Subtasks
@@ -27,7 +27,7 @@ so that I can process bounded record sets without constructing URLs or query str
 - [x] Implement one-page record retrieval through `getPage` (AC: 1, 2, 4)
   - [x] Map options to `viewId`, `startRow`, `rowsPerPage`, `composite`, `objNames`, `fieldList`, `filterName`, `filterValue`, `onlyViewFields`, and `output`
   - [x] Keep method constants and response-shape handling centralized
-- [x] Add a safe typed search/select surface only if its result can satisfy `Page[DynamicRecord]` (AC: 3, 4)
+- [x] Document the search/select deferral and preserve the lower-level escape hatch (AC: 3, 4)
   - [x] Do not expose raw SQL as a high-level convenience; `client.methods` remains the explicit lower-level escape hatch
   - [x] Account for official `search` returning IDs and `selectQuery` returning 2D rows, not record objects
 - [x] Add tests and run all quality gates (AC: 1-4)
@@ -39,7 +39,7 @@ so that I can process bounded record sets without constructing URLs or query str
 ### Technical Requirements
 
 - Create `bcic/pagination.py` for paging options/state and extend `bcic/endpoints/records.py` plus record models.
-- `PageMetadata` currently requires exact `total_items` and `total_pages`. Official `getPage` does not document totals. Adjust the shared model deliberately (for example optional totals plus `start_row`, returned count, and `has_more`) rather than inserting false totals.
+- `PageMetadata` currently requires exact `total_items` and `total_pages`. Official `getPage` does not document totals. Adjust the shared model deliberately (for example optional totals plus `start_row`, returned count, and `has_more`) rather than inserting false totals. Existing callers/tests that construct `PageMetadata` with exact totals must continue to work or receive an explicit compatibility update with regression coverage.
 - Official `getPage` is GET and is view-based: it requires `viewId`, not object name. Preserve that contract in naming and types.
 - A full page (`len(items) == page_size`) does not prove another page exists; it is a conservative continuation signal for Story 3.3 unless a response supplies authoritative metadata.
 - `search` accepts a query and optional `objName` but returns IDs; `selectQuery` accepts `startRow`, `maxRows`, and SQL and returns a 2D array. Do not claim these are record pages without a documented hydration strategy.
@@ -54,13 +54,13 @@ so that I can process bounded record sets without constructing URLs or query str
 
 - Story 3.1 is the expected prerequisite for single-record normalization; reuse it for each `getPage` item.
 - Existing `Page`/`PageMetadata` are strict frozen Pydantic models. Preserve their generic public contract while correcting metadata semantics.
-- `RestTransport` parser currently accepts only top-level mappings, while official `getPage`, `search`, and `selectQuery` JSON examples may be top-level arrays. This story must extend normalization at the parser boundary without weakening malformed-response checks or breaking existing mapping consumers.
+- `RestTransport` parser currently accepts only top-level mappings, while official `getPage`, `search`, and `selectQuery` JSON examples may be top-level arrays. This story must extend normalization at the parser boundary without weakening malformed-response checks or breaking existing mapping consumers. Generic method callers must receive the parsed top-level JSON shape (`Mapping` or `list`) through the same SDK exception boundary; non-JSON, scalar, and partially malformed payloads remain rejected.
 
 ### File Structure and Testing
 
 - NEW: `bcic/pagination.py`, `tests/unit/test_pagination.py`.
 - UPDATE: `bcic/endpoints/records.py`, `bcic/models/common.py`, `bcic/models/records.py`, exports, and `bcic/transport.py` only as required for documented array responses.
-- Mock all HTTP; assert exact parameter names and atomic failure when any item is invalid.
+- Mock all HTTP; assert exact parameter names, backward-compatible `PageMetadata` construction, top-level array parser behavior, and atomic failure when any item is invalid.
 
 ### Previous Story Intelligence
 

@@ -16,7 +16,7 @@ so that I can change record data without replacing unrelated fields or construct
 
 1. `client.records.update(object_name, record_id, changes, *, use_ids=False)` validates input and POSTs `updateRecord` through the shared authenticated transport.
 2. The request sends only protocol parameters plus the supplied field changes; it never retrieves, merges, or resends unrelated record fields.
-3. Success returns a typed update result identifying the requested record and operation status; it does not claim to contain the updated record because the documented API returns only status/message.
+3. Success returns a typed update result identifying the requested record and operation status; it does not claim to contain the updated record because the documented API returns only status/message. A parsed 2xx response whose status envelope indicates failure is mapped to the corresponding SDK exception, not normalized as success.
 4. Empty/invalid changes fail before network execution; missing, denied, or invalid updates map to `NotFoundError`, `AuthorizationError`, or `ValidationError` with sanitized context.
 
 ## Tasks / Subtasks
@@ -26,7 +26,7 @@ so that I can change record data without replacing unrelated fields or construct
   - [x] Reject reserved protocol keys case-insensitively and preserve only explicitly supplied changes
 - [x] Implement `RecordsEndpoint.update()` through `updateRecord` POST (AC: 1-4)
   - [x] Map `object_name`→`objName`, `record_id`→`id`, `use_ids`→`useIds`, add output, then flatten changes
-  - [x] Normalize status/message without echoing request fields or fabricating a returned record
+  - [x] Normalize status/message without echoing request fields or fabricating a returned record; reject failure status envelopes
 - [x] Add tests and run all quality gates (AC: 1-4)
   - [x] Cover exact minimal payload, single/multiple changes, invalid input with no network, malformed success, and mapped failures
   - [x] Run pytest, Ruff format/check, and strict mypy
@@ -36,7 +36,7 @@ so that I can change record data without replacing unrelated fields or construct
 ### Technical Requirements
 
 - Official `updateRecord` supports PUT or POST; use POST because current transport supports GET/POST and POST avoids broadening transport solely for this method.
-- The documented response is standard success/failure (`status`, optional `Msg`), not record data. A typed result should use stable SDK field names while retaining sanitized message text only if safe.
+- The documented response is standard success/failure (`status`, optional `Msg`), not record data. A typed result should use stable SDK field names while retaining sanitized message text only if safe. Only documented success statuses may produce `RecordUpdateResult`; documented failure statuses in otherwise successful HTTP responses must go through the shared SDK exception mapping.
 - Reuse the reserved-key and dynamic-field validators from Story 3.4; do not duplicate them.
 - Unknown BCIC field names may be ignored server-side. Do not claim local schema validation without metadata.
 - Never include the change mapping in exception messages or logs.
@@ -55,7 +55,7 @@ so that I can change record data without replacing unrelated fields or construct
 ### File Structure and Testing
 
 - UPDATE: `bcic/models/records.py`, exports, `bcic/endpoints/records.py`, record endpoint/model tests.
-- No transport change is expected. If response mapping reveals a generic BCIC status gap, fix it at the transport boundary with regression tests.
+- No transport change is expected. If response mapping reveals a generic BCIC status gap, fix it at the transport boundary with regression tests, including a 2xx response containing a failure status.
 
 ### Previous Story Intelligence
 

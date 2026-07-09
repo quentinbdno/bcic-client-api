@@ -16,7 +16,7 @@ so that I can submit dynamic fields without invoking a generic REST method.
 
 1. `client.records.create(object_name, fields, *, use_ids=False)` validates input and POSTs `createRecord` through the shared authenticated transport.
 2. The request sends `objName`, `useIds`, dynamic field integration names/values, and configured JSON output; reserved protocol keys cannot be overwritten by dynamic fields.
-3. A successful response returns a documented typed creation result containing non-empty string `record_id` and `object_name`.
+3. A successful response returns a documented typed creation result containing non-empty string `record_id` and `object_name`; a returned `objName` that does not match the requested object name is treated as a malformed response and raises sanitized SDK `ValidationError`.
 4. Invalid local input fails before network execution; BCIC validation failures remain sanitized SDK `ValidationError` and do not expose field payloads, credentials, or session IDs.
 
 ## Tasks / Subtasks
@@ -26,7 +26,7 @@ so that I can submit dynamic fields without invoking a generic REST method.
   - [x] Reject reserved keys (`objName`, `id`, `useIds`, `output`, `sessionId`) case-insensitively
 - [x] Implement `RecordsEndpoint.create()` through `createRecord` (AC: 1-4)
   - [x] Flatten validated dynamic fields into documented POST parameters without logging/embedding the payload in errors
-  - [x] Normalize documented `id`/`objName` response keys into the typed result
+  - [x] Normalize documented `id`/`objName` response keys into the typed result and reject returned object-name mismatches
 - [x] Add tests and run all quality gates (AC: 1-4)
   - [x] Cover exact POST JSON, success result, empty/invalid/reserved fields, malformed response, and mapped BCIC validation/authorization failures
   - [x] Run pytest, Ruff format/check, and strict mypy
@@ -35,7 +35,7 @@ so that I can submit dynamic fields without invoking a generic REST method.
 
 ### Technical Requirements
 
-- Official `createRecord` is POST; it returns the new ID and object name, not a complete record. Return a typed creation result rather than issuing an undocumented follow-up GET.
+- Official `createRecord` is POST; it returns the new ID and object name, not a complete record. Return a typed creation result rather than issuing an undocumented follow-up GET. Compare the returned object name to the requested object name after normalizing surrounding whitespace; do not silently trust mismatched identity.
 - Field values use BCIC CSV-import semantics and relationships may use pipe-separated IDs. Keep values within the deliberate `JSONValue` boundary; do not invent tenant-specific coercion.
 - The official API may ignore unknown field names. Local validation can reject structural errors but must not claim schema validation without metadata.
 - `useIds` controls lookup/picklist interpretation. Keep its Python spelling `use_ids` and transport spelling `useIds`.
@@ -56,7 +56,7 @@ so that I can submit dynamic fields without invoking a generic REST method.
 
 - UPDATE: `bcic/models/records.py`, `bcic/models/__init__.py`, `bcic/endpoints/records.py`.
 - UPDATE: `tests/unit/test_endpoints_records.py` and model tests as needed.
-- Assert local validation leaves the mock request list empty and exception text excludes representative secret/field values.
+- Assert local validation leaves the mock request list empty, response object-name mismatches raise `ValidationError`, and exception text excludes representative secret/field values.
 
 ### Previous Story Intelligence
 
