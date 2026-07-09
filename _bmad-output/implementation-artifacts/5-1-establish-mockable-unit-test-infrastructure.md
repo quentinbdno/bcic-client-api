@@ -1,6 +1,10 @@
+---
+baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
+---
+
 # Story 5.1: Establish Mockable Unit-Test Infrastructure
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,16 +21,16 @@ so that SDK behavior can be verified without live BCIC credentials or tenants.
 
 ## Tasks / Subtasks
 
-- [ ] Create typed reusable test builders and fixtures (AC: 1-3)
-  - [ ] Add request recorder, static/sequence handler, response builders, and configured-client fixture under `tests/unit/`
-  - [ ] Keep fixture secrets synthetic and never include production-looking tenant data
-- [ ] Add an explicit no-live-network guard (AC: 3)
-  - [ ] Permit only clients backed by `MockTransport`; fail accidental default `httpx` sends with an actionable message
-  - [ ] Ensure the guard does not patch pytest/httpx internals more broadly than necessary
-- [ ] Refactor representative existing tests and validate isolation (AC: 1-4)
-  - [ ] Reuse fixtures in auth, transport, lifecycle, methods, and endpoint tests where clearer
-  - [ ] Run the suite with BCIC environment variables removed and verify deterministic request order
-- [ ] Run pytest, Ruff format/check, and strict mypy (AC: 1-4)
+- [x] Create typed reusable test builders and fixtures (AC: 1-3)
+  - [x] Add request recorder, static/sequence handler, response builders, and configured-client fixture under `tests/unit/`
+  - [x] Keep fixture secrets synthetic and never include production-looking tenant data
+- [x] Add an explicit no-live-network guard (AC: 3)
+  - [x] Permit only clients backed by `MockTransport`; fail accidental default `httpx` sends with an actionable message
+  - [x] Ensure the guard does not patch pytest/httpx internals more broadly than necessary
+- [x] Refactor representative existing tests and validate isolation (AC: 1-4)
+  - [x] Reuse fixtures in auth, transport, lifecycle, methods, and endpoint tests where clearer
+  - [x] Run the suite with BCIC environment variables removed and verify deterministic request order
+- [x] Run pytest, Ruff format/check, and strict mypy (AC: 1-4)
 
 ## Dev Notes
 
@@ -66,9 +70,27 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Direct Poetry invocation unavailable; used the existing project
+  virtual environment to execute equivalent gates.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added reusable typed request recording, response sequencing, JSON builders,
+  configured client fixture, and a narrowly scoped no-live-network guard.
+- Refactored representative authentication and transport tests onto shared fakes.
+- Verified 157 tests pass with BCIC environment variables removed; Ruff and strict
+  mypy pass.
 
 ### File List
 
+- tests/unit/conftest.py
+- tests/unit/fakes.py
+- tests/unit/test_fakes.py
+- tests/unit/test_auth.py
+- tests/unit/test_transport.py
+
+## Change Log
+
+- 2026-07-09: Established deterministic offline unit-test infrastructure and
+  migrated representative tests.

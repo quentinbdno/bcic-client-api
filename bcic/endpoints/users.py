@@ -37,11 +37,24 @@ class UsersEndpoint(BaseEndpoint):
         )
 
     def list_roles(self) -> list[Role]:
-        """Return all visible roles (BCIC omits Super Admin)."""
+        """Return all visible roles; BCIC omits Super Admin.
+
+        Raises:
+            ValidationError: If the complete response cannot be normalized.
+            BCICError: For mapped request failures.
+        """
         return normalize_roles(self._execute("getRoles"))
 
     def get_role(self, role_id: str) -> Role:
-        """Return a role by its BCIC original ID, not its tenant-local ID."""
+        """Return a role by its BCIC original ID, not its tenant-local ID.
+
+        Args:
+            role_id: Non-empty BCIC original role identifier.
+
+        Raises:
+            ValidationError: If input or response data is invalid.
+            BCICError: For mapped request failures.
+        """
         payload = self._execute(
             "getRoleById", {"roleId": validate_identifier(role_id, "role ID")}
         )
@@ -55,7 +68,18 @@ class UsersEndpoint(BaseEndpoint):
         object_id: str | None = None,
         application_id: str | None = None,
     ) -> list[Permission]:
-        """Return permissions assigned through a role original ID."""
+        """Return permissions assigned through a role original ID.
+
+        Args:
+            role_id: BCIC original role identifier.
+            entity_type: Supported permission entity type.
+            object_id: Required only for object-dependent entity types.
+            application_id: Required only for menu permissions.
+
+        Raises:
+            ValidationError: If identifiers, dependencies, or data are invalid.
+            BCICError: For mapped request failures.
+        """
         return self._get_permissions(
             "getPermissionsByRole",
             "roleId",
@@ -74,7 +98,18 @@ class UsersEndpoint(BaseEndpoint):
         object_id: str | None = None,
         application_id: str | None = None,
     ) -> list[Permission]:
-        """Return permissions assigned to one documented BCIC user ID."""
+        """Return permissions assigned to one documented BCIC user ID.
+
+        Args:
+            user_id: Documented BCIC user identifier.
+            entity_type: Supported non-field permission entity type.
+            object_id: Required only for object-dependent entity types.
+            application_id: Required only for menu permissions.
+
+        Raises:
+            ValidationError: If identifiers, dependencies, or data are invalid.
+            BCICError: For mapped request failures.
+        """
         return self._get_permissions(
             "getPermissionsByUser",
             "userId",

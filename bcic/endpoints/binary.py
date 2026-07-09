@@ -24,7 +24,22 @@ class BinaryEndpoint(BaseEndpoint):
         *,
         max_bytes: int = DEFAULT_MAX_BYTES,
     ) -> BinaryData:
-        """Retrieve and strictly decode one bounded attachment."""
+        """Retrieve and strictly decode one bounded attachment.
+
+        Args:
+            object_name: BCIC object name.
+            record_id: Record identifier.
+            field_name: Binary field name.
+            max_bytes: Maximum permitted decoded payload size.
+
+        Returns:
+            Decoded bytes and validated metadata.
+
+        Raises:
+            ValidationError: If input, envelope, or Base64 data is invalid.
+            APIError: If decoded content exceeds ``max_bytes``.
+            BCICError: For mapped request failures.
+        """
         object_name, record_id, field_name = self._validated_identity(
             object_name, record_id, field_name
         )
@@ -82,7 +97,24 @@ class BinaryEndpoint(BaseEndpoint):
         content_type: str,
         max_bytes: int = DEFAULT_MAX_BYTES,
     ) -> BinaryUploadResult:
-        """Upload one validated buffered attachment using Base64 JSON."""
+        """Upload one validated buffered attachment using Base64 JSON.
+
+        Args:
+            object_name: BCIC object name.
+            record_id: Record identifier.
+            field_name: Binary field name.
+            content: Non-empty buffered bytes.
+            file_name: File name sent to BCIC.
+            content_type: Media type sent to BCIC.
+            max_bytes: Maximum permitted raw payload size.
+
+        Returns:
+            Content-free normalized upload status.
+
+        Raises:
+            ValidationError: If metadata, content, size, or response is invalid.
+            BCICError: For mapped request failures.
+        """
         object_name, record_id, field_name = self._validated_identity(
             object_name, record_id, field_name
         )

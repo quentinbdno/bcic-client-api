@@ -33,7 +33,22 @@ class MethodsEndpoint(BaseEndpoint):
         http_method: HTTPMethod = "GET",
         output_format: OutputFormat | None = None,
     ) -> JSONMapping:
-        """Execute a lower-level method; prefer a domain endpoint when available."""
+        """Execute a lower-level method; prefer a domain endpoint when available.
+
+        Args:
+            method_name: Safe REST v1 method name, not a URL or path.
+            parameters: Optional JSON-compatible request mapping.
+            http_method: ``GET`` or ``POST``.
+            output_format: Optional configured parser format override.
+
+        Returns:
+            A parsed JSON object.
+
+        Raises:
+            ValidationError: If method options or parameters are invalid.
+            APIError: If a successful response is not a JSON object.
+            BCICError: For mapped request failures.
+        """
         validate_method_name(method_name)
         if http_method not in {"GET", "POST"}:
             raise ValidationError("Unsupported HTTP method")

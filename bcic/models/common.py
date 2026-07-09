@@ -10,6 +10,7 @@ from pydantic import (
 )
 
 from bcic.exceptions import ValidationError
+from bcic.utils.logging import sanitize_context
 
 
 class SDKModel(BaseModel):
@@ -23,6 +24,11 @@ class SDKModel(BaseModel):
         except PydanticValidationError as error:
             name = type(self).__name__
             raise ValidationError(f"Invalid {name} data") from error
+
+    def __repr__(self) -> str:
+        """Return a useful representation with sensitive fields redacted."""
+        fields = sanitize_context(self.model_dump())
+        return f"{type(self).__name__}({fields!r})"
 
 
 class ResponseMetadata(SDKModel):

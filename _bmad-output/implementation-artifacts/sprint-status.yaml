@@ -86,10 +86,10 @@ development_status:
 
   # Epic 5: SDK Adoption, Maintainability, and Release Confidence
   epic-5: in-progress
-  5-1-establish-mockable-unit-test-infrastructure: ready-for-dev
-  5-2-cover-public-sdk-behavior: ready-for-dev
-  5-3-enforce-automated-quality-gates: ready-for-dev
-  5-4-publish-consumer-documentation: ready-for-dev
-  5-5-provide-examples-and-public-api-docstrings: ready-for-dev
-  5-6-define-release-and-compatibility-governance: ready-for-dev
+  5-1-establish-mockable-unit-test-infrastructure: review
+  5-2-cover-public-sdk-behavior: review
+  5-3-enforce-automated-quality-gates: review
+  5-4-publish-consumer-documentation: review
+  5-5-provide-examples-and-public-api-docstrings: review
+  5-6-define-release-and-compatibility-governance: review
   epic-5-retrospective: optional

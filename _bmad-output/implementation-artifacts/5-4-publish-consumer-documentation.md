@@ -1,6 +1,10 @@
+---
+baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
+---
+
 # Story 5.4: Publish Consumer Documentation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,14 +21,14 @@ so that I can adopt the SDK without reading its internal implementation.
 
 ## Tasks / Subtasks
 
-- [ ] Create the documentation index and installation/quick-start path (AC: 1-4)
-  - [ ] Cover Python/Poetry requirements, package install, explicit/environment configuration, client lifecycle, and first request
-- [ ] Document operational concepts (AC: 1-4)
-  - [ ] Add authentication/session behavior, exception handling, pagination safeguards, binary limits/safety, and logging configuration
-- [ ] Create a concise public API reference (AC: 1, 3, 4)
-  - [ ] Cover `Client`, endpoint methods, public models, and exception hierarchy; distinguish high/low-level APIs
-- [ ] Validate docs against code and quality gates (AC: 2-4)
-  - [ ] Check links, compile code blocks/examples where practical, and run pytest/Ruff/mypy
+- [x] Create the documentation index and installation/quick-start path (AC: 1-4)
+  - [x] Cover Python/Poetry requirements, package install, explicit/environment configuration, client lifecycle, and first request
+- [x] Document operational concepts (AC: 1-4)
+  - [x] Add authentication/session behavior, exception handling, pagination safeguards, binary limits/safety, and logging configuration
+- [x] Create a concise public API reference (AC: 1, 3, 4)
+  - [x] Cover `Client`, endpoint methods, public models, and exception hierarchy; distinguish high/low-level APIs
+- [x] Validate docs against code and quality gates (AC: 2-4)
+  - [x] Check links, compile code blocks/examples where practical, and run pytest/Ruff/mypy
 
 ## Dev Notes
 
@@ -66,9 +70,29 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Documentation contract tests validate required pages, relative
+  Markdown targets, and Python fenced-block syntax.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Published task-oriented installation, quick-start, authentication, errors,
+  pagination, and API-reference pages using safe placeholders.
+- Documented lifecycle, retries, pagination safeguards, buffered binary limits,
+  logging safety, and the preferred domain versus lower-level method boundary.
+- Verified links and snippets plus 167 tests, Ruff, and strict mypy.
 
 ### File List
 
+- docs/index.md
+- docs/installation.md
+- docs/quick-start.md
+- docs/authentication.md
+- docs/errors.md
+- docs/pagination.md
+- docs/api-reference.md
+- tests/unit/test_documentation.py
+
+## Change Log
+
+- 2026-07-09: Published and validated the initial consumer documentation set.

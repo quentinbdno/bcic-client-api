@@ -58,8 +58,18 @@ class RecordsEndpoint(BaseEndpoint):
     ) -> DynamicRecord:
         """Retrieve one record.
 
-        Raises ``ValidationError`` for invalid input or response data and the
-        shared SDK transport exceptions for BCIC request failures.
+        Args:
+            object_name: BCIC object name.
+            record_id: Record identifier.
+            field_names: Optional fields to request.
+            composite: Non-negative composite expansion depth.
+
+        Returns:
+            The atomically validated dynamic record.
+
+        Raises:
+            ValidationError: If input or response data is invalid.
+            BCICError: For mapped authentication, permission, or API failures.
         """
         object_name = validate_identifier(object_name, "object name")
         record_id = validate_identifier(record_id, "record ID")
@@ -95,7 +105,25 @@ class RecordsEndpoint(BaseEndpoint):
         equality_filter: EqualityFilter | None = None,
         only_view_fields: bool = False,
     ) -> Page[DynamicRecord]:
-        """Retrieve and atomically normalize one view-based record page."""
+        """Retrieve and atomically normalize one view-based record page.
+
+        Args:
+            view_id: BCIC view identifier.
+            start_row: Zero-based first row.
+            page_size: Positive requested row count.
+            composite: Non-negative composite expansion depth.
+            object_names: Optional object-name restriction.
+            field_names: Optional returned-field restriction.
+            equality_filter: Optional named equality filter.
+            only_view_fields: Request only fields configured on the view.
+
+        Returns:
+            A typed record page with normalized metadata.
+
+        Raises:
+            ValidationError: If options or response data are invalid.
+            BCICError: For mapped request failures.
+        """
         options = RecordPageOptions(
             view_id=view_id,
             start_row=start_row,
@@ -156,7 +184,27 @@ class RecordsEndpoint(BaseEndpoint):
         equality_filter: EqualityFilter | None = None,
         only_view_fields: bool = False,
     ) -> list[DynamicRecord]:
-        """Eagerly retrieve all records within explicit safety limits."""
+        """Eagerly retrieve all records within explicit safety limits.
+
+        Args:
+            view_id: BCIC view identifier.
+            page_size: Positive rows requested per page.
+            max_pages: Maximum number of requests.
+            max_items: Maximum accumulated records.
+            composite: Composite expansion depth.
+            object_names: Optional object restriction.
+            field_names: Optional field restriction.
+            equality_filter: Optional named equality filter.
+            only_view_fields: Request only fields configured on the view.
+
+        Returns:
+            All records when traversal completes within the safeguards.
+
+        Raises:
+            PaginationLimitError: If a page or item limit is reached.
+            ValidationError: If pagination stalls or data is malformed.
+            BCICError: For mapped request failures.
+        """
         if page_size <= 0 or max_pages <= 0 or max_items <= 0:
             raise ValidationError("Pagination limits must be positive")
 
@@ -186,7 +234,20 @@ class RecordsEndpoint(BaseEndpoint):
         *,
         use_ids: bool = False,
     ) -> RecordCreationResult:
-        """Create a record and return its server-assigned identity."""
+        """Create a record and return its server-assigned identity.
+
+        Args:
+            object_name: BCIC object name.
+            fields: Non-empty JSON-compatible field mapping.
+            use_ids: Interpret field keys as BCIC identifiers when true.
+
+        Returns:
+            The created object's normalized identity.
+
+        Raises:
+            ValidationError: If input or response data is invalid.
+            BCICError: For mapped request failures.
+        """
         if not isinstance(fields, Mapping):
             raise ValidationError("Invalid record fields")
         request = CreateRecordRequest(
@@ -221,7 +282,21 @@ class RecordsEndpoint(BaseEndpoint):
         *,
         use_ids: bool = False,
     ) -> RecordUpdateResult:
-        """Update only the supplied fields on one existing record."""
+        """Update only the supplied fields on one existing record.
+
+        Args:
+            object_name: BCIC object name.
+            record_id: Existing record identifier.
+            changes: Non-empty JSON-compatible changes.
+            use_ids: Interpret field keys as BCIC identifiers when true.
+
+        Returns:
+            The normalized update status.
+
+        Raises:
+            ValidationError: If input or response data is invalid.
+            BCICError: For mapped request failures.
+        """
         if not isinstance(changes, Mapping):
             raise ValidationError("Invalid record changes")
         request = UpdateRecordRequest(
@@ -253,6 +328,17 @@ class RecordsEndpoint(BaseEndpoint):
 
         Normal Platform records move to the Recycle Bin; behavior for external
         objects remains server-defined.
+
+        Args:
+            object_name: BCIC object name.
+            record_id: Existing record identifier.
+
+        Returns:
+            The normalized deletion status.
+
+        Raises:
+            ValidationError: If identity or response data is invalid.
+            BCICError: For mapped request failures.
         """
         object_name = validate_identifier(object_name, "object name")
         record_id = validate_identifier(record_id, "record ID")

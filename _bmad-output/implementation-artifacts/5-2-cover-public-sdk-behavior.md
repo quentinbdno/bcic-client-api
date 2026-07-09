@@ -1,6 +1,10 @@
+---
+baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
+---
+
 # Story 5.2: Cover Public SDK Behavior
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,16 +21,16 @@ so that regressions are detected before release.
 
 ## Tasks / Subtasks
 
-- [ ] Build a requirement-to-test inventory before adding tests (AC: 1-4)
-  - [ ] Map FR-2 through FR-23 and every implemented public method/exception to existing test modules and identify actual gaps
-  - [ ] Do not duplicate coverage already supplied by focused Story 1-4 tests
-- [ ] Add missing public behavior and boundary tests (AC: 1-4)
-  - [ ] Cover cross-component flows through `Client` in addition to isolated model/transport units
-  - [ ] Add parameterized failure matrices while retaining readable scenario names
-- [ ] Add comprehensive leakage assertions (AC: 3)
-  - [ ] Centralize representative sensitive markers and check logs, errors, repr/str, and failed validation paths
-- [ ] Run all quality gates and document the resulting coverage matrix (AC: 1-4)
-  - [ ] Run pytest, Ruff format/check, and strict mypy
+- [x] Build a requirement-to-test inventory before adding tests (AC: 1-4)
+  - [x] Map FR-2 through FR-23 and every implemented public method/exception to existing test modules and identify actual gaps
+  - [x] Do not duplicate coverage already supplied by focused Story 1-4 tests
+- [x] Add missing public behavior and boundary tests (AC: 1-4)
+  - [x] Cover cross-component flows through `Client` in addition to isolated model/transport units
+  - [x] Add parameterized failure matrices while retaining readable scenario names
+- [x] Add comprehensive leakage assertions (AC: 3)
+  - [x] Centralize representative sensitive markers and check logs, errors, repr/str, and failed validation paths
+- [x] Run all quality gates and document the resulting coverage matrix (AC: 1-4)
+  - [x] Run pytest, Ruff format/check, and strict mypy
 
 ## Dev Notes
 
@@ -68,9 +72,25 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Red-phase representation test exposed sensitive dynamic model
+  fields; added sanitized SDK model representations.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Mapped FR-2 through FR-23 and the SDK exception surface to focused test
+  modules in `docs/testing.md`.
+- Added cross-component raw-exception, logging, and model-representation
+  contracts with centralized sensitive markers.
+- Verified 162 tests, Ruff format/check, and strict mypy pass.
 
 ### File List
 
+- bcic/models/common.py
+- docs/testing.md
+- tests/unit/test_public_behavior_contract.py
+
+## Change Log
+
+- 2026-07-09: Completed the public-behavior coverage audit and closed the
+  sensitive model representation gap.

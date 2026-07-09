@@ -6,6 +6,7 @@ from bcic.auth import SessionAuth
 from bcic.config import ClientConfig
 from bcic.exceptions import AuthenticationError
 from bcic.transport import RestTransport
+from tests.unit.fakes import RequestRecorder, json_response
 
 
 def config() -> ClientConfig:
@@ -17,25 +18,23 @@ def config() -> ClientConfig:
 
 
 def test_explicit_authentication_uses_headers_and_keeps_session_private() -> None:
-    requests: list[httpx.Request] = []
-
-    def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        return httpx.Response(200, json={"status": "ok", "sessionId": "private-id"})
+    recorder = RequestRecorder(
+        lambda _: json_response({"status": "ok", "sessionId": "private-id"})
+    )
 
     transport = RestTransport(
         config().base_url,
-        client=httpx.Client(transport=httpx.MockTransport(handler)),
+        client=httpx.Client(transport=httpx.MockTransport(recorder)),
     )
     auth = SessionAuth(config(), transport)
     transport.authentication = auth
 
     auth.authenticate()
 
-    assert requests[0].url == "https://example.test/rest/api/login"
-    assert requests[0].headers["loginname"] == "integration-user"
-    assert requests[0].headers["password"] == "secret-value"
-    assert requests[0].read() == b'{"output":"json"}'
+    assert recorder.requests[0].url == "https://example.test/rest/api/login"
+    assert recorder.requests[0].headers["loginname"] == "integration-user"
+    assert recorder.requests[0].headers["password"] == "secret-value"
+    assert recorder.requests[0].read() == b'{"output":"json"}'
     assert not hasattr(auth, "session_id")
     assert "private-id" not in repr(auth)
 

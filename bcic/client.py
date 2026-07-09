@@ -43,7 +43,21 @@ class Client:
         output_format: OutputFormat = "json",
         http_client: httpx.Client | None = None,
     ) -> None:
-        """Create a client from explicit validated configuration values."""
+        """Create a client from explicit validated configuration values.
+
+        Args:
+            base_url: BCIC tenant base URL without credentials.
+            username: Login name used when a session is established.
+            password: Login secret retained as a protected configuration value.
+            timeout: HTTP timeout in seconds.
+            max_retries: Retry attempts after the initial request.
+            retry_wait_seconds: Fixed delay between retryable attempts.
+            output_format: Configured response format; domain APIs require JSON.
+            http_client: Optional injected synchronous HTTP client.
+
+        Raises:
+            ConfigurationError: If any configuration value is invalid.
+        """
         try:
             self._config = ClientConfig(
                 base_url=base_url,
@@ -107,11 +121,20 @@ class Client:
         return self._methods
 
     def authenticate(self) -> None:
-        """Establish and retain a private BCIC REST v1 session."""
+        """Establish and retain a private BCIC REST v1 session.
+
+        Raises:
+            AuthenticationError: If BCIC does not establish a valid session.
+            BCICError: For another mapped transport or API failure.
+        """
         self._authentication.authenticate()
 
     def logout(self) -> None:
-        """Terminate the active BCIC session, if one exists."""
+        """Terminate the active BCIC session, if one exists.
+
+        The operation is idempotent. Mapped SDK exceptions may be raised when
+        remote termination of an active session fails.
+        """
         self._authentication.logout()
 
     def close(self) -> None:
@@ -144,7 +167,24 @@ class Client:
         retry_wait_seconds: float | str | None = None,
         output_format: OutputFormat | None = None,
     ) -> "Client":
-        """Create a client from BCIC environment variables and explicit overrides."""
+        """Create a client from BCIC environment variables and overrides.
+
+        Args:
+            environ: Optional environment mapping; defaults to ``os.environ``.
+            base_url: Explicit override for ``BCIC_BASE_URL``.
+            username: Explicit override for ``BCIC_USERNAME``.
+            password: Explicit override for ``BCIC_PASSWORD``.
+            timeout: Explicit override for ``BCIC_TIMEOUT``.
+            max_retries: Explicit override for ``BCIC_MAX_RETRIES``.
+            retry_wait_seconds: Override for ``BCIC_RETRY_WAIT_SECONDS``.
+            output_format: Explicit override for ``BCIC_OUTPUT_FORMAT``.
+
+        Returns:
+            A validated client that has not performed network I/O.
+
+        Raises:
+            ConfigurationError: If required values are absent or invalid.
+        """
         source = os.environ if environ is None else environ
         values = {
             "base_url": (

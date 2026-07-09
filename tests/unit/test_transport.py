@@ -3,24 +3,25 @@ import pytest
 
 from bcic.exceptions import APIError, ValidationError
 from bcic.transport import ResponseParser, RestTransport
+from tests.unit.fakes import RequestRecorder, json_response
 
 
 def test_transport_builds_get_and_post_requests() -> None:
-    requests: list[httpx.Request] = []
+    recorder = RequestRecorder(lambda _: json_response({"status": "ok", "value": 1}))
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request)
-        return httpx.Response(200, json={"status": "ok", "value": 1})
-
-    client = httpx.Client(transport=httpx.MockTransport(handler))
+    client = httpx.Client(transport=httpx.MockTransport(recorder))
     transport = RestTransport("https://example.test/root", client=client)
 
     assert transport.execute("getRecord", {"id": "42"}, http_method="GET")["value"] == 1
     transport.execute("createRecord", {"name": "Ada"}, http_method="POST")
 
-    assert requests[0].url == "https://example.test/root/rest/api/getRecord?id=42"
-    assert requests[1].url == "https://example.test/root/rest/api/createRecord"
-    assert requests[1].read() == b'{"name":"Ada"}'
+    assert recorder.requests[0].url == (
+        "https://example.test/root/rest/api/getRecord?id=42"
+    )
+    assert recorder.requests[1].url == (
+        "https://example.test/root/rest/api/createRecord"
+    )
+    assert recorder.requests[1].read() == b'{"name":"Ada"}'
 
 
 def test_parser_normalizes_json_object() -> None:

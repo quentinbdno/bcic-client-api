@@ -1,6 +1,10 @@
+---
+baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
+---
+
 # Story 5.3: Enforce Automated Quality Gates
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -17,16 +21,16 @@ so that every releasable change meets the same baseline quality standard.
 
 ## Tasks / Subtasks
 
-- [ ] Audit and tighten centralized tool/dependency configuration (AC: 1, 4)
-  - [ ] Confirm lockfile matches `pyproject.toml`, strict mypy scopes library code, and Ruff/pytest discovery is intentional
-  - [ ] Add package typing marker/config only if required by the public typing contract
-- [ ] Add reproducible GitHub Actions quality workflow (AC: 2, 3)
-  - [ ] Use a Python matrix for 3.12 and one current supported version; install Poetry, then `poetry install`
-  - [ ] Run all four gates with no secrets and least-required workflow permissions
-- [ ] Document local quality commands and dependency policy (AC: 2, 4)
-  - [ ] Keep commands identical in meaning to CI and explain runtime versus dev placement
-- [ ] Execute the full workflow locally where available (AC: 1-4)
-  - [ ] Run lock consistency/install validation, pytest, Ruff lint/format checks, and strict mypy
+- [x] Audit and tighten centralized tool/dependency configuration (AC: 1, 4)
+  - [x] Confirm lockfile matches `pyproject.toml`, strict mypy scopes library code, and Ruff/pytest discovery is intentional
+  - [x] Add package typing marker/config only if required by the public typing contract
+- [x] Add reproducible GitHub Actions quality workflow (AC: 2, 3)
+  - [x] Use a Python matrix for 3.12 and one current supported version; install Poetry, then `poetry install`
+  - [x] Run all four gates with no secrets and least-required workflow permissions
+- [x] Document local quality commands and dependency policy (AC: 2, 4)
+  - [x] Keep commands identical in meaning to CI and explain runtime versus dev placement
+- [x] Execute the full workflow locally where available (AC: 1-4)
+  - [x] Run lock consistency/install validation, pytest, Ruff lint/format checks, and strict mypy
 
 ## Dev Notes
 
@@ -70,9 +74,24 @@ GPT-5 Codex
 
 ### Debug Log References
 
+- 2026-07-09: Poetry was unavailable locally; lock metadata/content hash was
+  audited and equivalent gates ran from the existing locked environment.
+
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added a least-privilege GitHub Actions matrix for Python 3.12 and 3.14 using
+  Poetry and the four required quality commands.
+- Documented contributor setup, identical local gates, and runtime/dev
+  dependency placement policy.
+- Verified 164 tests, Ruff format/check, and strict mypy pass.
 
 ### File List
 
+- .github/workflows/quality.yml
+- docs/contributing.md
+- tests/unit/test_quality_configuration.py
+
+## Change Log
+
+- 2026-07-09: Added reproducible CI quality gates and contributor policy.
