@@ -4,7 +4,7 @@ baseline_commit: f5d1d5b61997a09547ea18f43fabaa55a3858934
 
 # Story 2.4: Map Failures and Apply Retry Policy
 
-Status: review
+Status: done
 
 ## Story
 
@@ -25,6 +25,10 @@ so that my application can respond correctly without interpreting HTTP or BCIC i
 - [x] Map HTTP, network, timeout, and BCIC envelope failures (AC: 2)
 - [x] Add configured tenacity retry policy for transient failures only (AC: 3, 4)
 - [x] Add mapping, retry-count, exhaustion, and non-retry tests (AC: 1-4)
+
+### Review Findings
+
+- [x] [Review][Decision][Dismissed] Keep automatic retries for mutating POST method calls as-is — Decision: retain current retry behavior for POST requests.
 
 ## Dev Notes
 
@@ -65,4 +69,4 @@ GPT-5 Codex
 
 ## Status
 
-review
+done

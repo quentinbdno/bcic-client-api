@@ -4,7 +4,7 @@ baseline_commit: f5d1d5b61997a09547ea18f43fabaa55a3858934
 
 # Story 2.5: Execute Controlled Generic REST v1 Methods
 
-Status: review
+Status: done
 
 ## Story
 
@@ -24,6 +24,11 @@ so that I can use broader BCIC capabilities without bypassing SDK safeguards.
 - [x] Define validated generic method request types (AC: 1, 3)
 - [x] Implement `MethodsEndpoint.execute()` through shared transport (AC: 1, 2, 4)
 - [x] Add unit tests for valid GET/POST calls and preflight rejection (AC: 1-4)
+
+### Review Findings
+
+- [x] [Review][Patch] Reject XML output for generic methods before lazy auth or network execution until XML parsing exists [bcic/endpoints/methods.py:40, bcic/transport.py:48]
+- [x] [Review][Patch] Validate or explicitly encode nested/list GET parameters before passing them to httpx query params [bcic/endpoints/methods.py:43, bcic/transport.py:141]
 
 ## Dev Notes
 
@@ -64,4 +69,4 @@ GPT-5 Codex
 
 ## Status
 
-review
+done

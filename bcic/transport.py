@@ -40,6 +40,9 @@ class AuthenticationStrategy(Protocol):
     def request_headers(self) -> dict[str, str]:
         """Return headers for an authenticated request."""
 
+    def clear_session(self) -> None:
+        """Clear locally cached authentication state."""
+
 
 class ResponseParser:
     """Normalize transport responses without exposing raw HTTP objects."""
@@ -121,6 +124,15 @@ class RestTransport:
                 output_format,
                 request_headers,
             )
+        except AuthenticationError:
+            if authenticate and self.authentication is not None:
+                self.authentication.clear_session()
+            logger.error(
+                "BCIC request failed method=%s http_method=%s",
+                method_name,
+                http_method,
+            )
+            raise
         except Exception:
             logger.error(
                 "BCIC request failed method=%s http_method=%s",

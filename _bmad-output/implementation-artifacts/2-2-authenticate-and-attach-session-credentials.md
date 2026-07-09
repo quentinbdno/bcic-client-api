@@ -4,7 +4,7 @@ baseline_commit: f5d1d5b61997a09547ea18f43fabaa55a3858934
 
 # Story 2.2: Authenticate and Attach Session Credentials
 
-Status: review
+Status: done
 
 ## Story
 
@@ -26,6 +26,11 @@ so that I can call endpoint methods without handling session identifiers myself.
 - [x] Integrate lazy authentication and credential attachment with transport (AC: 2, 3)
 - [x] Expose explicit `Client.authenticate()` without exposing session state (AC: 1, 4)
 - [x] Add unit tests for explicit/lazy auth, reuse, attachment, and sanitization (AC: 1-4)
+
+### Review Findings
+
+- [x] [Review][Patch] Clear cached session state after an authenticated request receives a session/authentication failure [bcic/auth.py:18, bcic/transport.py:179]
+- [x] [Review][Patch] Normalize login success status consistently with transport success handling [bcic/auth.py:31, bcic/transport.py:176]
 
 ## Dev Notes
 
@@ -69,4 +74,4 @@ GPT-5 Codex
 
 ## Status
 
-review
+done

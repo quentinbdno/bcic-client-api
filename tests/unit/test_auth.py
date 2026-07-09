@@ -67,6 +67,62 @@ def test_lazy_authentication_occurs_once_and_attaches_session_header() -> None:
     assert requests[2].headers["sessionid"] == "sid-1"
 
 
+@pytest.mark.parametrize("status", ["OK", "success"])
+def test_authentication_accepts_normalized_success_status(status: str) -> None:
+    transport = RestTransport(
+        config().base_url,
+        client=httpx.Client(
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(
+                    200, json={"status": status, "sessionId": "sid-1"}
+                )
+            )
+        ),
+    )
+    auth = SessionAuth(config(), transport)
+
+    auth.authenticate()
+
+    assert auth.request_headers() == {"sessionId": "sid-1"}
+
+
+def test_authenticated_request_failure_clears_stale_session_for_reauth() -> None:
+    requests: list[httpx.Request] = []
+    login_count = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal login_count
+        requests.append(request)
+        if request.url.path.endswith("/login"):
+            login_count += 1
+            return httpx.Response(
+                200, json={"status": "ok", "sessionId": f"sid-{login_count}"}
+            )
+        if request.headers["sessionid"] == "sid-1":
+            return httpx.Response(200, json={"status": "login"})
+        return httpx.Response(200, json={"status": "ok"})
+
+    transport = RestTransport(
+        config().base_url,
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    auth = SessionAuth(config(), transport)
+    transport.authentication = auth
+
+    with pytest.raises(AuthenticationError):
+        transport.execute("getRecord")
+    transport.execute("getRecord")
+
+    assert [request.url.path for request in requests] == [
+        "/rest/api/login",
+        "/rest/api/getRecord",
+        "/rest/api/login",
+        "/rest/api/getRecord",
+    ]
+    assert requests[1].headers["sessionid"] == "sid-1"
+    assert requests[3].headers["sessionid"] == "sid-2"
+
+
 @pytest.mark.parametrize(
     "payload",
     [

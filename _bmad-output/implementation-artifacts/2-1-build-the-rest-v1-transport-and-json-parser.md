@@ -4,7 +4,7 @@ baseline_commit: f5d1d5b61997a09547ea18f43fabaa55a3858934
 
 # Story 2.1: Build the REST v1 Transport and JSON Parser
 
-Status: review
+Status: done
 
 ## Story
 
@@ -66,4 +66,4 @@ GPT-5 Codex
 
 ## Status
 
-review
+done

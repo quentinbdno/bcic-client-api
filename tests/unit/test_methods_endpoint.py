@@ -44,8 +44,11 @@ def test_generic_methods_execute_get_and_post_through_shared_transport() -> None
     [
         ("../login", {}, "GET", None),
         ("getRecord", {"nested": object()}, "GET", None),
+        ("getRecord", {"nested": {"id": 1}}, "GET", None),
+        ("getRecord", {"ids": [1, 2]}, "GET", None),
         ("getRecord", {}, "DELETE", None),
         ("getRecord", {}, "GET", "yaml"),
+        ("getRecord", {}, "GET", "xml"),
     ],
 )
 def test_generic_methods_reject_invalid_input_before_network(

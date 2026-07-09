@@ -37,7 +37,12 @@ class SessionAuth:
             logger.warning("Authentication failed")
             raise AuthenticationError("BCIC authentication failed")
         session_id = payload.get("sessionId")
-        if payload.get("status") != "ok" or not isinstance(session_id, str):
+        status = payload.get("status")
+        if (
+            not isinstance(status, str)
+            or status.lower() not in {"ok", "success"}
+            or not isinstance(session_id, str)
+        ):
             logger.warning("Authentication failed")
             raise AuthenticationError("BCIC authentication failed")
         normalized_session_id = session_id.strip()
@@ -53,6 +58,10 @@ class SessionAuth:
         if self._session_id is None:  # pragma: no cover - authenticate guarantees it
             raise AuthenticationError("BCIC authentication failed")
         return {"sessionId": self._session_id}
+
+    def clear_session(self) -> None:
+        """Forget the cached session after BCIC rejects it."""
+        self._session_id = None
 
     def logout(self) -> None:
         """Terminate an active session and always clear local state."""

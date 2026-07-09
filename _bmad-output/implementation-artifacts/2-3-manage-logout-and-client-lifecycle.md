@@ -4,7 +4,7 @@ baseline_commit: f5d1d5b61997a09547ea18f43fabaa55a3858934
 
 # Story 2.3: Manage Logout and Client Lifecycle
 
-Status: review
+Status: done
 
 ## Story
 
@@ -65,4 +65,4 @@ GPT-5 Codex
 
 ## Status
 
-review
+done

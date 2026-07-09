@@ -22,6 +22,10 @@ def _is_json_value(value: object) -> bool:
     return False
 
 
+def _is_query_value(value: object) -> bool:
+    return value is None or isinstance(value, str | int | float | bool)
+
+
 class MethodsEndpoint(BaseEndpoint):
     """Lower-level entry point for controlled methods introduced by Epic 2."""
 
@@ -53,7 +57,7 @@ class MethodsEndpoint(BaseEndpoint):
         if http_method not in {"GET", "POST"}:
             raise ValidationError("Unsupported HTTP method")
         resolved_format = output_format or self._context.config.output_format
-        if resolved_format not in {"json", "xml"}:
+        if resolved_format != "json":
             raise ValidationError("Unsupported output format")
         if parameters is not None and (
             not isinstance(parameters, Mapping)
@@ -61,6 +65,10 @@ class MethodsEndpoint(BaseEndpoint):
                 isinstance(key, str) and _is_json_value(value)
                 for key, value in parameters.items()
             )
+        ):
+            raise ValidationError("Invalid REST method parameters")
+        if http_method == "GET" and parameters is not None and not all(
+            _is_query_value(value) for value in parameters.values()
         ):
             raise ValidationError("Invalid REST method parameters")
         request_parameters = cast(dict[str, JSONValue], dict(parameters or {}))
