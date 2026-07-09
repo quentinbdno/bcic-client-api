@@ -1,5 +1,5 @@
 # generated: 2026-07-08
-# last_updated: 2026-07-08
+# last_updated: 2026-07-09
 # project: bcic-client-api
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-07-08
-last_updated: 2026-07-08
+last_updated: 2026-07-09
 project: bcic-client-api
 project_key: NOKEY
 tracking_system: file-system
@@ -66,13 +66,13 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Record Data Automation
-  epic-3: backlog
-  3-1-retrieve-a-single-record: backlog
-  3-2-retrieve-and-search-paged-records: backlog
-  3-3-traverse-all-record-pages-safely: backlog
-  3-4-create-records: backlog
-  3-5-update-records: backlog
-  3-6-delete-records: backlog
+  epic-3: in-progress
+  3-1-retrieve-a-single-record: ready-for-dev
+  3-2-retrieve-and-search-paged-records: ready-for-dev
+  3-3-traverse-all-record-pages-safely: ready-for-dev
+  3-4-create-records: ready-for-dev
+  3-5-update-records: ready-for-dev
+  3-6-delete-records: ready-for-dev
   epic-3-retrospective: optional
 
   # Epic 4: User, Permission, and Binary Operations
