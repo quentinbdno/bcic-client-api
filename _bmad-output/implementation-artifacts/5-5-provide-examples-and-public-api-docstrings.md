@@ -4,7 +4,7 @@ baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
 
 # Story 5.5: Provide Examples and Public API Docstrings
 
-Status: review
+Status: done
 
 ## Story
 
@@ -30,6 +30,10 @@ so that I can understand supported operations directly from code and project res
 - [x] Add automated example/docstring contract tests (AC: 3, 4)
   - [x] Compile/import examples without running `main`; inspect supported public symbols/signatures; scan for sensitive literals
 - [x] Run pytest, Ruff format/check, and strict mypy (AC: 1-4)
+
+### Review Findings
+
+- [x] [Review][Patch] Public user endpoint docstrings omit required return documentation [bcic/endpoints/users.py:39]
 
 ## Dev Notes
 

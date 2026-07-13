@@ -41,9 +41,9 @@ remain backward compatible.
 
 After 1.0, public removal requires a documented replacement and
 `DeprecationWarning` for at least one minor release before removal. The message
-must name the deprecated API, replacement, and planned removal version. Calls
-use `stacklevel=2` so warnings point to consumer code. `FutureWarning` is not
-used for developer-facing API deprecations.
+must name the deprecated API, replacement, and planned removal version. Warnings
+must point to consumer code. `FutureWarning` is not used for developer-facing
+API deprecations.
 
 No current public API is deprecated merely to test this mechanism. The private
 helper and private test callable validate the standard warning contract.

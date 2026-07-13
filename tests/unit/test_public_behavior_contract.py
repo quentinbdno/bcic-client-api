@@ -29,6 +29,8 @@ SENSITIVE_MARKERS = (
                 "credential": SENSITIVE_MARKERS[0],
                 "sessionId": SENSITIVE_MARKERS[1],
                 "token": SENSITIVE_MARKERS[2],
+                "notes": SENSITIVE_MARKERS[2],
+                "attachment": SENSITIVE_MARKERS[4],
             },
         ),
         BinaryData(
@@ -45,7 +47,7 @@ SENSITIVE_MARKERS = (
     ],
 )
 def test_public_model_repr_does_not_expose_sensitive_values(model: object) -> None:
-    representation = repr(model)
+    representation = repr(model) + str(model)
     assert all(marker not in representation for marker in SENSITIVE_MARKERS)
 
 

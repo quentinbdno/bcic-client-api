@@ -4,7 +4,7 @@ baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
 
 # Story 5.1: Establish Mockable Unit-Test Infrastructure
 
-Status: review
+Status: done
 
 ## Story
 
@@ -31,6 +31,10 @@ so that SDK behavior can be verified without live BCIC credentials or tenants.
   - [x] Reuse fixtures in auth, transport, lifecycle, methods, and endpoint tests where clearer
   - [x] Run the suite with BCIC environment variables removed and verify deterministic request order
 - [x] Run pytest, Ruff format/check, and strict mypy (AC: 1-4)
+
+### Review Findings
+
+- [x] [Review][Patch] `json_response` cannot represent explicit empty JSON payloads [tests/unit/fakes.py:50]
 
 ## Dev Notes
 

@@ -45,6 +45,8 @@ def test_sequence_handler_rejects_unexpected_extra_request() -> None:
 
 def test_response_builders_are_sanitized() -> None:
     assert json_response().json() == {"status": "ok"}
+    assert json_response({}).json() == {}
+    assert json_response([]).json() == []
     assert json_error(status_code=403).json() == {"status": "validation"}
 
 

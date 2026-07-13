@@ -12,9 +12,9 @@ from bcic.models.common import SDKModel
 
 type JSONScalar = str | int | float | bool | None
 type JSONValue = JSONScalar | list[JSONValue] | dict[str, JSONValue]
-type FrozenJSONValue = JSONScalar | tuple[FrozenJSONValue, ...] | Mapping[
-    str, FrozenJSONValue
-]
+type FrozenJSONValue = (
+    JSONScalar | tuple[FrozenJSONValue, ...] | Mapping[str, FrozenJSONValue]
+)
 
 _RESERVED_FIELD_NAMES = frozenset({"objname", "id", "useids", "output", "sessionid"})
 

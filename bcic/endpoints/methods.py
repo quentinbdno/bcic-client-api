@@ -66,8 +66,10 @@ class MethodsEndpoint(BaseEndpoint):
             )
         ):
             raise ValidationError("Invalid REST method parameters")
-        if http_method == "GET" and parameters is not None and not all(
-            _is_query_value(value) for value in parameters.values()
+        if (
+            http_method == "GET"
+            and parameters is not None
+            and not all(_is_query_value(value) for value in parameters.values())
         ):
             raise ValidationError("Invalid REST method parameters")
         request_parameters = cast(dict[str, JSONValue], dict(parameters or {}))

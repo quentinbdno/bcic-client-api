@@ -47,7 +47,9 @@ def json_response(
     status_code: int = 200,
 ) -> httpx.Response:
     """Build a sanitized JSON response suitable for ``MockTransport``."""
-    return httpx.Response(status_code, json=payload or {"status": "ok"})
+    return httpx.Response(
+        status_code, json={"status": "ok"} if payload is None else payload
+    )
 
 
 def json_error(

@@ -14,6 +14,7 @@ _SENSITIVE_KEYS = frozenset(
         "credential",
         "credentials",
         "filedata",
+        "fields",
         "password",
         "payload",
         "secret",

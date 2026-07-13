@@ -4,7 +4,7 @@ baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
 
 # Story 5.4: Publish Consumer Documentation
 
-Status: review
+Status: done
 
 ## Story
 

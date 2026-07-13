@@ -4,7 +4,7 @@ baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
 
 # Story 5.6: Define Release and Compatibility Governance
 
-Status: review
+Status: done
 
 ## Story
 
@@ -30,6 +30,10 @@ so that consumers can assess the compatibility risk of an upgrade.
   - [x] Add a small internal warning helper only if it reduces inconsistency; use `DeprecationWarning`, replacement, removal target, and `stacklevel=2`
   - [x] Test helper behavior on a private test callable; do not mark existing public methods deprecated without product direction
 - [x] Cross-check package metadata/docs and run all quality gates (AC: 1-4)
+
+### Review Findings
+
+- [x] [Review][Patch] Deprecation helper warning location points at SDK wrapper rather than consumer call site [bcic/_deprecation.py:8]
 
 ## Dev Notes
 

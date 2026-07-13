@@ -85,11 +85,11 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: SDK Adoption, Maintainability, and Release Confidence
-  epic-5: in-progress
-  5-1-establish-mockable-unit-test-infrastructure: review
-  5-2-cover-public-sdk-behavior: review
-  5-3-enforce-automated-quality-gates: review
-  5-4-publish-consumer-documentation: review
-  5-5-provide-examples-and-public-api-docstrings: review
-  5-6-define-release-and-compatibility-governance: review
+  epic-5: done
+  5-1-establish-mockable-unit-test-infrastructure: done
+  5-2-cover-public-sdk-behavior: done
+  5-3-enforce-automated-quality-gates: done
+  5-4-publish-consumer-documentation: done
+  5-5-provide-examples-and-public-api-docstrings: done
+  5-6-define-release-and-compatibility-governance: done
   epic-5-retrospective: optional

@@ -8,5 +8,5 @@ def warn_deprecated(name: str, *, replacement: str, removal: str) -> None:
     warnings.warn(
         f"{name} is deprecated; use {replacement} instead; removal in {removal}",
         DeprecationWarning,
-        stacklevel=2,
+        stacklevel=3,
     )

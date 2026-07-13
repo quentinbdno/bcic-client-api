@@ -4,7 +4,7 @@ baseline_commit: 425f2d91c8184000f9036ff76dc3ab21a6a91dbd
 
 # Story 5.2: Cover Public SDK Behavior
 
-Status: review
+Status: done
 
 ## Story
 
@@ -31,6 +31,10 @@ so that regressions are detected before release.
   - [x] Centralize representative sensitive markers and check logs, errors, repr/str, and failed validation paths
 - [x] Run all quality gates and document the resulting coverage matrix (AC: 1-4)
   - [x] Run pytest, Ruff format/check, and strict mypy
+
+### Review Findings
+
+- [x] [Review][Patch] Public model string representations still expose arbitrary dynamic sensitive values [bcic/models/common.py:29]
 
 ## Dev Notes
 

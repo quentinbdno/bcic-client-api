@@ -28,6 +28,7 @@ def test_private_deprecation_helper_uses_standard_actionable_warning() -> None:
     assert "use _private_replacement instead" in str(warning.message)
     assert "removal in 1.3" in str(warning.message)
     assert warning.filename == __file__
+    assert warning.lineno == 22
 
 
 def test_release_artifacts_define_required_sections() -> None:

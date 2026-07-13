@@ -39,6 +39,9 @@ class UsersEndpoint(BaseEndpoint):
     def list_roles(self) -> list[Role]:
         """Return all visible roles; BCIC omits Super Admin.
 
+        Returns:
+            Normalized role models visible to the authenticated user.
+
         Raises:
             ValidationError: If the complete response cannot be normalized.
             BCICError: For mapped request failures.
@@ -50,6 +53,9 @@ class UsersEndpoint(BaseEndpoint):
 
         Args:
             role_id: Non-empty BCIC original role identifier.
+
+        Returns:
+            The normalized role matching ``role_id``.
 
         Raises:
             ValidationError: If input or response data is invalid.
@@ -75,6 +81,9 @@ class UsersEndpoint(BaseEndpoint):
             entity_type: Supported permission entity type.
             object_id: Required only for object-dependent entity types.
             application_id: Required only for menu permissions.
+
+        Returns:
+            Normalized permissions assigned through the role.
 
         Raises:
             ValidationError: If identifiers, dependencies, or data are invalid.
@@ -105,6 +114,9 @@ class UsersEndpoint(BaseEndpoint):
             entity_type: Supported non-field permission entity type.
             object_id: Required only for object-dependent entity types.
             application_id: Required only for menu permissions.
+
+        Returns:
+            Normalized permissions assigned directly or indirectly to the user.
 
         Raises:
             ValidationError: If identifiers, dependencies, or data are invalid.

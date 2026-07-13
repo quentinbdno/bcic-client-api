@@ -31,6 +31,10 @@ class SDKModel(BaseModel):
         fields = sanitize_context(self.model_dump())
         return f"{type(self).__name__}({fields!r})"
 
+    def __str__(self) -> str:
+        """Return the same sanitized text used for debugging representation."""
+        return repr(self)
+
 
 class ResponseMetadata(SDKModel):
     """Common optional metadata accompanying a BCIC response."""
