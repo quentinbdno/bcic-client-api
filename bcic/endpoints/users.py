@@ -158,4 +158,7 @@ class UsersEndpoint(BaseEndpoint):
             parameters["objId"] = validate_identifier(object_id, "object ID")
         if application_id is not None:
             parameters["appId"] = validate_identifier(application_id, "application ID")
-        return normalize_permissions(self._execute(method_name, parameters))
+        return normalize_permissions(
+            self._execute(method_name, parameters),
+            allow_conditional=allow_field and entity is PermissionEntityType.FIELD,
+        )

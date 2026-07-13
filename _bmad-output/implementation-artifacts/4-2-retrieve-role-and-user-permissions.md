@@ -4,7 +4,7 @@ baseline_commit: b1f383f1fc11ad0e3d50214a46df2b647f37a06d
 
 # Story 4.2: Retrieve Role and User Permissions
 
-Status: review
+Status: done
 
 ## Story
 
@@ -30,6 +30,10 @@ so that automation can evaluate BCIC access using typed data.
 - [x] Add unit tests and run all quality gates (AC: 1-4)
   - [x] Cover every entity-type dependency, role/user differences, valid conditional field permission, empty list, malformed item, and mapped failures
   - [x] Run pytest, Ruff format/check, and strict mypy
+
+### Review Findings
+
+- [x] [Review][Patch] Permission normalization accepts `conditional` outside role-field permissions [bcic/models/users.py:108]
 
 ## Dev Notes
 

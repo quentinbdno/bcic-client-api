@@ -110,14 +110,14 @@ def test_role_permission_dependency_matrix(
                 "originalId": "contact",
                 "read": True,
                 "write": False,
-                "special": "conditional",
             }
         ],
     )
     result = client.users.get_permissions_by_role(
         "role", entity, object_id=object_id, application_id=application_id
     )
-    assert result[0].permissions["special"] == "conditional"
+    assert result[0].permissions["read"] is True
+    assert result[0].permissions["write"] is False
     params = dict(requests[1].url.params)
     assert params == {
         "roleId": "role",
@@ -135,6 +135,59 @@ def test_user_permissions_reject_field_without_request() -> None:
             "user", PermissionEntityType.FIELD, object_id="object"
         )
     assert requests == []
+
+
+def test_role_field_permissions_allow_conditional_value() -> None:
+    result = make_client(
+        [],
+        [
+            {
+                "name": "Contact",
+                "id": "3",
+                "originalId": "contact",
+                "special": "conditional",
+            }
+        ],
+    ).users.get_permissions_by_role("role", "field", object_id="object-1")
+
+    assert result[0].permissions["special"] == "conditional"
+
+
+@pytest.mark.parametrize(
+    ("subject", "entity", "object_id", "application_id"),
+    [
+        ("role", "object", None, None),
+        ("role", "view", "object-1", None),
+        ("role", "menu", None, "app-1"),
+        ("user", "object", None, None),
+        ("user", "view", "object-1", None),
+        ("user", "menu", None, "app-1"),
+    ],
+)
+def test_non_role_field_permissions_reject_conditional_value(
+    subject: str, entity: str, object_id: str | None, application_id: str | None
+) -> None:
+    client = make_client(
+        [],
+        [
+            {
+                "name": "Contact",
+                "id": "3",
+                "originalId": "contact",
+                "special": "conditional",
+            }
+        ],
+    )
+
+    with pytest.raises(ValidationError):
+        if subject == "role":
+            client.users.get_permissions_by_role(
+                "role", entity, object_id=object_id, application_id=application_id
+            )
+        else:
+            client.users.get_permissions_by_user(
+                "user", entity, object_id=object_id, application_id=application_id
+            )
 
 
 @pytest.mark.parametrize(

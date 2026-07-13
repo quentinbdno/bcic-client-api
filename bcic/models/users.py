@@ -90,7 +90,9 @@ def normalize_roles(payload: object) -> list[Role]:
         raise ValidationError("Invalid roles response") from error
 
 
-def normalize_permissions(payload: object) -> list[Permission]:
+def normalize_permissions(
+    payload: object, *, allow_conditional: bool = False
+) -> list[Permission]:
     """Atomically normalize a top-level permission array."""
     if not isinstance(payload, list):
         raise ValidationError("Invalid permissions response")
@@ -105,7 +107,9 @@ def normalize_permissions(payload: object) -> list[Permission]:
                     continue
                 if not isinstance(key, str) or not key.strip():
                     raise ValidationError("Invalid permission response")
-                if isinstance(value, bool) or value == "conditional":
+                if isinstance(value, bool) or (
+                    allow_conditional and value == "conditional"
+                ):
                     permissions[key] = cast(PermissionValue, value)
                 else:
                     raise ValidationError("Invalid permission response")
