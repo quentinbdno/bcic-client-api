@@ -6,8 +6,8 @@ from collections.abc import Mapping
 import httpx
 from pydantic import SecretStr, ValidationError
 
-from bcic.auth import SessionAuth
-from bcic.config import ClientConfig, OutputFormat
+from bcic.auth import ApiKeyAuth, AuthStrategy, SessionAuth
+from bcic.config import AuthMode, ClientConfig, OutputFormat
 from bcic.endpoints import (
     BinaryEndpoint,
     MethodsEndpoint,
@@ -24,6 +24,11 @@ from bcic.exceptions import ConfigurationError
 from bcic.transport import ResponseParser, RestTransport
 
 
+def _has_text(value: str | None) -> bool:
+    """Return whether a string value is present and non-blank."""
+    return value is not None and bool(value.strip())
+
+
 class Client:
     """Configured client for interacting with BCIC.
 
@@ -35,8 +40,11 @@ class Client:
         self,
         *,
         base_url: str,
-        username: str,
-        password: str,
+        username: str | None = None,
+        password: str | None = None,
+        auth_mode: AuthMode = "session",
+        api_key: str | None = None,
+        api_key_header: str = "Api-Key",
         timeout: float = 30.0,
         max_retries: int = 3,
         retry_wait_seconds: float = 0.5,
@@ -49,6 +57,9 @@ class Client:
             base_url: BCIC tenant base URL without credentials.
             username: Login name used when a session is established.
             password: Login secret retained as a protected configuration value.
+            auth_mode: Authentication mode; defaults to session auth.
+            api_key: API key used when ``auth_mode="api_key"``.
+            api_key_header: Header name used for API-key authentication.
             timeout: HTTP timeout in seconds.
             max_retries: Retry attempts after the initial request.
             retry_wait_seconds: Fixed delay between retryable attempts.
@@ -62,7 +73,10 @@ class Client:
             self._config = ClientConfig(
                 base_url=base_url,
                 username=username,
-                password=SecretStr(password),
+                password=SecretStr(password) if password is not None else None,
+                auth_mode=auth_mode,
+                api_key=SecretStr(api_key) if api_key is not None else None,
+                api_key_header=api_key_header,
                 timeout=timeout,
                 max_retries=max_retries,
                 retry_wait_seconds=retry_wait_seconds,
@@ -79,7 +93,11 @@ class Client:
             max_retries=self._config.max_retries,
             retry_wait_seconds=self._config.retry_wait_seconds,
         )
-        self._authentication = SessionAuth(self._config, transport)
+        self._authentication: AuthStrategy
+        if self._config.auth_mode == "api_key":
+            self._authentication = ApiKeyAuth(self._config)
+        else:
+            self._authentication = SessionAuth(self._config, transport)
         self._transport = transport
         transport.authentication = self._authentication
         context = _EndpointContext(
@@ -162,6 +180,9 @@ class Client:
         base_url: str | None = None,
         username: str | None = None,
         password: str | None = None,
+        auth_mode: AuthMode | None = None,
+        api_key: str | None = None,
+        api_key_header: str | None = None,
         timeout: float | str | None = None,
         max_retries: int | str | None = None,
         retry_wait_seconds: float | str | None = None,
@@ -174,6 +195,9 @@ class Client:
             base_url: Explicit override for ``BCIC_BASE_URL``.
             username: Explicit override for ``BCIC_USERNAME``.
             password: Explicit override for ``BCIC_PASSWORD``.
+            auth_mode: Explicit override for ``BCIC_AUTH_MODE``.
+            api_key: Explicit override for ``BCIC_API_KEY``.
+            api_key_header: Explicit override for ``BCIC_API_KEY_HEADER``.
             timeout: Explicit override for ``BCIC_TIMEOUT``.
             max_retries: Explicit override for ``BCIC_MAX_RETRIES``.
             retry_wait_seconds: Override for ``BCIC_RETRY_WAIT_SECONDS``.
@@ -186,15 +210,56 @@ class Client:
             ConfigurationError: If required values are absent or invalid.
         """
         source = os.environ if environ is None else environ
+        resolved_username = (
+            username if username is not None else source.get("BCIC_USERNAME")
+        )
+        resolved_password = (
+            password if password is not None else source.get("BCIC_PASSWORD")
+        )
+        resolved_api_key = (
+            api_key if api_key is not None else source.get("BCIC_API_KEY")
+        )
+
+        has_username = _has_text(resolved_username)
+        has_password = _has_text(resolved_password)
+        has_api_key = _has_text(resolved_api_key)
+
+        selected_auth_mode: AuthMode | str
+        if auth_mode is not None:
+            selected_auth_mode = auth_mode
+        else:
+            env_auth_mode = source.get("BCIC_AUTH_MODE")
+            if _has_text(env_auth_mode):
+                selected_auth_mode = env_auth_mode  # normalized by ClientConfig
+            elif has_api_key:
+                selected_auth_mode = "api_key"
+            elif has_username and has_password:
+                selected_auth_mode = "session"
+            else:
+                raise ConfigurationError("authentication data missing")
+
+        normalized_mode = (
+            selected_auth_mode.strip().lower()
+            if isinstance(selected_auth_mode, str)
+            else selected_auth_mode
+        )
+        if normalized_mode == "api_key" and not has_api_key:
+            raise ConfigurationError("authentication data missing")
+        if normalized_mode == "session" and not (has_username and has_password):
+            raise ConfigurationError("authentication data missing")
+
         values = {
             "base_url": (
                 base_url if base_url is not None else source.get("BCIC_BASE_URL")
             ),
-            "username": (
-                username if username is not None else source.get("BCIC_USERNAME")
-            ),
-            "password": (
-                password if password is not None else source.get("BCIC_PASSWORD")
+            "username": resolved_username,
+            "password": resolved_password,
+            "auth_mode": selected_auth_mode,
+            "api_key": resolved_api_key,
+            "api_key_header": (
+                api_key_header
+                if api_key_header is not None
+                else source.get("BCIC_API_KEY_HEADER", "Api-Key")
             ),
             "timeout": (
                 timeout if timeout is not None else source.get("BCIC_TIMEOUT", 30.0)
@@ -223,7 +288,18 @@ class Client:
         return cls(
             base_url=config.base_url,
             username=config.username,
-            password=config.password.get_secret_value(),
+            password=(
+                config.password.get_secret_value()
+                if config.password is not None
+                else None
+            ),
+            auth_mode=config.auth_mode,
+            api_key=(
+                config.api_key.get_secret_value()
+                if config.api_key is not None
+                else None
+            ),
+            api_key_header=config.api_key_header,
             timeout=config.timeout,
             max_retries=config.max_retries,
             retry_wait_seconds=config.retry_wait_seconds,

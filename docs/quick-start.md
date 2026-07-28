@@ -26,3 +26,17 @@ except BCICError as error:
 environment. See [authentication](authentication.md) and [errors](errors.md).
 Use domain endpoints for normal application code. Reserve
 `client.methods.execute()` for documented methods with no high-level wrapper.
+
+API-key authentication mode is also available:
+
+```python
+from bcic import Client
+
+with Client(
+    base_url="https://example.bcic.test",
+    auth_mode="api_key",
+    api_key="YOUR_API_KEY",
+) as client:
+    roles = client.users.list_roles()
+    print(len(roles))
+```

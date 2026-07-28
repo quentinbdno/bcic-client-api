@@ -80,3 +80,24 @@ def test_context_manager_closes_and_preserves_body_exception() -> None:
 
     with pytest.raises(APIError, match="Client is closed"):
         client.authenticate()
+
+
+def test_logout_is_noop_for_api_key_authentication() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json={"status": "ok"})
+
+    client = Client(
+        base_url="https://example.test",
+        auth_mode="api_key",
+        api_key="api-key-value",
+        http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+
+    client.authenticate()
+    client.logout()
+    client.methods.execute("getRoles")
+
+    assert [request.url.path for request in requests] == ["/rest/api/getRoles"]

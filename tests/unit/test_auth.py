@@ -2,7 +2,7 @@ import httpx
 import pytest
 
 from bcic import Client
-from bcic.auth import SessionAuth
+from bcic.auth import ApiKeyAuth, SessionAuth
 from bcic.config import ClientConfig
 from bcic.exceptions import AuthenticationError
 from bcic.transport import RestTransport
@@ -167,3 +167,51 @@ def test_client_exposes_explicit_authenticate() -> None:
 
     assert client.authenticate() is None
     assert not hasattr(client, "session_id")
+
+
+def test_api_key_authentication_attaches_header_without_login() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json={"status": "ok"})
+
+    transport = RestTransport(
+        "https://example.test",
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    auth = ApiKeyAuth(
+        ClientConfig(
+            base_url="https://example.test",
+            auth_mode="api_key",
+            api_key="api-key-value",
+        )
+    )
+    transport.authentication = auth
+
+    transport.execute("getRoles")
+
+    assert [request.url.path for request in requests] == ["/rest/api/getRoles"]
+    assert requests[0].headers["api-key"] == "api-key-value"
+
+
+def test_api_key_authentication_supports_custom_header() -> None:
+    transport = RestTransport(
+        "https://example.test",
+        client=httpx.Client(
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(200, json={"status": "ok"})
+            )
+        ),
+    )
+    auth = ApiKeyAuth(
+        ClientConfig(
+            base_url="https://example.test",
+            auth_mode="api_key",
+            api_key="api-key-value",
+            api_key_header="X-Custom-Api-Key",
+        )
+    )
+    transport.authentication = auth
+
+    assert auth.request_headers() == {"X-Custom-Api-Key": "api-key-value"}

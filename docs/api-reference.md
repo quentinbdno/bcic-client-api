@@ -5,7 +5,8 @@ symbols and auth/transport composition internals are not consumer APIs.
 
 ## Client
 
-`bcic.Client(*, base_url, username, password, timeout=30.0, max_retries=3,
+`bcic.Client(*, base_url, username=None, password=None, auth_mode="session",
+api_key=None, api_key_header="Api-Key", timeout=30.0, max_retries=3,
 retry_wait_seconds=0.5, output_format="json")`
 
 - `Client.from_env(environ=None, **overrides) -> Client`

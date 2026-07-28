@@ -7,6 +7,7 @@ _MAX_DEPTH = 8
 _SENSITIVE_KEYS = frozenset(
     {
         "authorization",
+        "apikey",
         "binary",
         "body",
         "content",
@@ -22,6 +23,7 @@ _SENSITIVE_KEYS = frozenset(
         "sessionid",
         "token",
         "value",
+        "xapikey",
     }
 )
 
@@ -34,7 +36,14 @@ def _sensitive(key: object) -> bool:
     )
     return normalized in _SENSITIVE_KEYS or any(
         marker in normalized
-        for marker in ("password", "authorization", "sessionid", "token", "secret")
+        for marker in (
+            "password",
+            "authorization",
+            "sessionid",
+            "token",
+            "secret",
+            "apikey",
+        )
     )
 
 

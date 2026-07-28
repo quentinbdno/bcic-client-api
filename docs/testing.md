@@ -10,7 +10,7 @@ cross-component tests.
 | --- | --- | --- |
 | FR-2 | Explicit/environment configuration and validation | `test_client.py` |
 | FR-3 | Cached composed endpoint properties | `test_endpoints.py` |
-| FR-4–5 | Explicit/lazy authentication and session headers | `test_auth.py` |
+| FR-4–5 | Explicit/lazy auth and request auth headers (session/API key) | `test_auth.py` |
 | FR-6 | Logout, close, and context management | `test_lifecycle.py` |
 | FR-7–9 | Request construction and JSON/parser boundaries | `test_transport.py` |
 | FR-10–12 | Retries and mapped SDK exceptions | `test_errors_retry.py` |

@@ -1,12 +1,29 @@
 """Encapsulated REST v1 session authentication."""
 
 import logging
+from typing import Protocol
 
 from bcic.config import ClientConfig
 from bcic.exceptions import AuthenticationError
 from bcic.transport import RestTransport
 
 logger = logging.getLogger(__name__)
+
+
+class AuthStrategy(Protocol):
+    """Authentication strategy contract used by the client."""
+
+    def authenticate(self) -> None:
+        """Prepare authentication state for future requests."""
+
+    def request_headers(self) -> dict[str, str]:
+        """Return headers for an authenticated request."""
+
+    def clear_session(self) -> None:
+        """Forget any locally cached authentication state."""
+
+    def logout(self) -> None:
+        """Terminate authentication state where supported."""
 
 
 class SessionAuth:
@@ -22,6 +39,9 @@ class SessionAuth:
         if self._session_id is not None:
             logger.debug("Authentication session reused")
             return
+        if self._config.username is None or self._config.password is None:
+            logger.warning("Authentication failed")
+            raise AuthenticationError("BCIC authentication failed")
         logger.info("Authentication started")
         payload = self._transport.execute(
             "login",
@@ -80,3 +100,33 @@ class SessionAuth:
         finally:
             self._session_id = None
             logger.info("Logout completed")
+
+
+class ApiKeyAuth:
+    """Authenticate requests by attaching an API key header."""
+
+    def __init__(self, config: ClientConfig) -> None:
+        self._config = config
+
+    def authenticate(self) -> None:
+        """Validate that the configured API key is present."""
+        api_key = self._config.api_key
+        if api_key is None or not api_key.get_secret_value().strip():
+            logger.warning("Authentication failed")
+            raise AuthenticationError("BCIC authentication failed")
+
+    def request_headers(self) -> dict[str, str]:
+        """Return headers for an authenticated request."""
+        self.authenticate()
+        api_key = self._config.api_key
+        if api_key is None:  # pragma: no cover - authenticate guarantees it
+            raise AuthenticationError("BCIC authentication failed")
+        return {
+            self._config.api_key_header: api_key.get_secret_value(),
+        }
+
+    def clear_session(self) -> None:
+        """No-op because API-key auth keeps no mutable session state."""
+
+    def logout(self) -> None:
+        """No-op because API-key auth has no remote session to terminate."""

@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from bcic.auth import SessionAuth
+from bcic.auth import AuthStrategy
 from bcic.config import ClientConfig
 from bcic.transport import ResponseParser, RestTransport
 
@@ -13,7 +13,7 @@ class _AuthenticationDependencies:
     """Configuration available to the future authentication adapter."""
 
     config: ClientConfig
-    strategy: SessionAuth
+    strategy: AuthStrategy
 
 
 @dataclass(frozen=True, slots=True)

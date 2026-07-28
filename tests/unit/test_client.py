@@ -52,6 +52,20 @@ def test_client_uses_safe_defaults() -> None:
     assert client.config.output_format == "json"
 
 
+def test_client_supports_api_key_authentication_mode() -> None:
+    client = Client(
+        base_url="https://example.bcic.test",
+        auth_mode="api_key",
+        api_key="api-key-value",
+    )
+
+    assert client.config.auth_mode == "api_key"
+    assert client.config.api_key is not None
+    assert client.config.api_key.get_secret_value() == "api-key-value"
+    assert client.config.username is None
+    assert client.config.password is None
+
+
 def test_client_from_env_supports_explicit_precedence() -> None:
     environment = {
         "BCIC_BASE_URL": "https://environment.bcic.test/",
@@ -79,12 +93,80 @@ def test_client_from_env_supports_explicit_precedence() -> None:
     assert client.config.output_format == "xml"
 
 
+def test_client_from_env_supports_api_key_mode() -> None:
+    environment = {
+        "BCIC_BASE_URL": "https://environment.bcic.test/",
+        "BCIC_AUTH_MODE": "api_key",
+        "BCIC_API_KEY": "env-api-key",
+    }
+
+    client = Client.from_env(environment)
+
+    assert client.config.base_url == "https://environment.bcic.test"
+    assert client.config.auth_mode == "api_key"
+    assert client.config.api_key is not None
+    assert client.config.api_key.get_secret_value() == "env-api-key"
+
+
+def test_client_from_env_infers_session_from_username_and_password() -> None:
+    environment = {
+        "BCIC_BASE_URL": "https://environment.bcic.test/",
+        "BCIC_USERNAME": "env-user",
+        "BCIC_PASSWORD": "env-password",
+    }
+
+    client = Client.from_env(environment)
+
+    assert client.config.auth_mode == "session"
+    assert client.config.username == "env-user"
+    assert client.config.password is not None
+    assert client.config.password.get_secret_value() == "env-password"
+
+
+def test_client_from_env_prefers_api_key_when_both_auth_data_types_exist() -> None:
+    environment = {
+        "BCIC_BASE_URL": "https://environment.bcic.test/",
+        "BCIC_USERNAME": "env-user",
+        "BCIC_PASSWORD": "env-password",
+        "BCIC_API_KEY": "env-api-key",
+    }
+
+    client = Client.from_env(environment)
+
+    assert client.config.auth_mode == "api_key"
+    assert client.config.api_key is not None
+    assert client.config.api_key.get_secret_value() == "env-api-key"
+
+
+def test_client_from_env_api_key_overrides_env() -> None:
+    environment = {
+        "BCIC_BASE_URL": "https://environment.bcic.test/",
+        "BCIC_AUTH_MODE": "session",
+        "BCIC_USERNAME": "env-user",
+        "BCIC_PASSWORD": "env-password",
+    }
+
+    client = Client.from_env(
+        environment,
+        auth_mode="api_key",
+        api_key="explicit-api-key",
+        api_key_header="X-Token",
+    )
+
+    assert client.config.auth_mode == "api_key"
+    assert client.config.api_key is not None
+    assert client.config.api_key.get_secret_value() == "explicit-api-key"
+    assert client.config.api_key_header == "X-Token"
+
+
 @pytest.mark.parametrize(
     ("overrides", "secret"),
     [
         ({"base_url": "not-a-url"}, "not-a-url"),
         ({"username": ""}, "secret-value"),
         ({"password": ""}, "integration-user"),
+        ({"auth_mode": "api_key", "username": None, "password": None}, "secret-value"),
+        ({"auth_mode": "api_key", "api_key": ""}, "secret-value"),
         ({"timeout": 0}, "secret-value"),
         ({"max_retries": -1}, "secret-value"),
         ({"retry_wait_seconds": -1}, "secret-value"),
@@ -112,7 +194,37 @@ def test_from_env_reports_missing_configuration_without_values() -> None:
     with pytest.raises(ConfigurationError) as error:
         Client.from_env({})
 
-    assert str(error.value) == "Invalid BCIC client configuration"
+    assert str(error.value) == "authentication data missing"
+
+
+@pytest.mark.parametrize(
+    "environment",
+    [
+        {
+            "BCIC_BASE_URL": "https://environment.bcic.test/",
+            "BCIC_AUTH_MODE": "session",
+        },
+        {
+            "BCIC_BASE_URL": "https://environment.bcic.test/",
+            "BCIC_AUTH_MODE": "api_key",
+        },
+        {
+            "BCIC_BASE_URL": "https://environment.bcic.test/",
+            "BCIC_USERNAME": "env-user",
+        },
+        {
+            "BCIC_BASE_URL": "https://environment.bcic.test/",
+            "BCIC_PASSWORD": "env-password",
+        },
+    ],
+)
+def test_from_env_reports_explicit_auth_data_missing(
+    environment: dict[str, str],
+) -> None:
+    with pytest.raises(ConfigurationError) as error:
+        Client.from_env(environment)
+
+    assert str(error.value) == "authentication data missing"
 
 
 def test_configuration_does_not_emit_logs(caplog: pytest.LogCaptureFixture) -> None:

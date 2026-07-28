@@ -12,6 +12,7 @@ def test_sanitizer_redacts_nested_sensitive_values_without_mutation() -> None:
     original = {
         "method_name": "setBinaryData",
         "password": "password-marker",
+        "X-API-Key": "api-key-marker",
         "nested": [
             {"sessionId": "session-marker", "Authorization": "token-marker"},
             b"binary-marker",
@@ -21,6 +22,7 @@ def test_sanitizer_redacts_nested_sensitive_values_without_mutation() -> None:
     assert sanitized == {
         "method_name": "setBinaryData",
         "password": REDACTED,
+        "X-API-Key": REDACTED,
         "nested": [
             {"sessionId": REDACTED, "Authorization": REDACTED},
             REDACTED,
