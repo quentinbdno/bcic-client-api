@@ -19,6 +19,19 @@ are internal. Documentation or examples that intentionally import a public
 module make the named symbol part of the documented boundary; incidental
 reachability does not.
 
+## API transport versioning
+
+The SDK supports an explicit API transport selection through
+`Client(api_version="v1" | "v2")` and the `BCIC_API_VERSION` environment
+variable.
+
+- `v1` is the default and preserves the current REST v1 method transport
+- `v2` is a separate routing branch intended for the REST v2 contract and
+  should be treated as a distinct transport layer, not a minor tweak to v1
+
+When adding or changing v2 behavior, prefer a dedicated v2 adapter or endpoint
+path rather than folding v2 rules into the v1 implementation.
+
 ## Pre-1.0 policy
 
 Before 1.0, incompatible public changes may ship in a minor release. Every

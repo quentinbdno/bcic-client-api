@@ -45,6 +45,7 @@ class Client:
         auth_mode: AuthMode = "session",
         api_key: str | None = None,
         api_key_header: str = "Api-Key",
+        api_version: str = "v1",
         timeout: float = 30.0,
         max_retries: int = 3,
         retry_wait_seconds: float = 0.5,
@@ -77,6 +78,7 @@ class Client:
                 auth_mode=auth_mode,
                 api_key=SecretStr(api_key) if api_key is not None else None,
                 api_key_header=api_key_header,
+                api_version=api_version,
                 timeout=timeout,
                 max_retries=max_retries,
                 retry_wait_seconds=retry_wait_seconds,
@@ -88,6 +90,7 @@ class Client:
         transport = RestTransport(
             self._config.base_url,
             timeout=self._config.timeout,
+            api_version=self._config.api_version,
             client=http_client,
             parser=parser,
             max_retries=self._config.max_retries,
@@ -183,6 +186,7 @@ class Client:
         auth_mode: AuthMode | None = None,
         api_key: str | None = None,
         api_key_header: str | None = None,
+        api_version: str | None = None,
         timeout: float | str | None = None,
         max_retries: int | str | None = None,
         retry_wait_seconds: float | str | None = None,
@@ -218,6 +222,9 @@ class Client:
         )
         resolved_api_key = (
             api_key if api_key is not None else source.get("BCIC_API_KEY")
+        )
+        resolved_api_version = (
+            api_version if api_version is not None else source.get("BCIC_API_VERSION", "v1")
         )
 
         has_username = _has_text(resolved_username)
@@ -261,6 +268,7 @@ class Client:
                 if api_key_header is not None
                 else source.get("BCIC_API_KEY_HEADER", "Api-Key")
             ),
+            "api_version": resolved_api_version,
             "timeout": (
                 timeout if timeout is not None else source.get("BCIC_TIMEOUT", 30.0)
             ),
@@ -300,6 +308,7 @@ class Client:
                 else None
             ),
             api_key_header=config.api_key_header,
+            api_version=config.api_version,
             timeout=config.timeout,
             max_retries=config.max_retries,
             retry_wait_seconds=config.retry_wait_seconds,

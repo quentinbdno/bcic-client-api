@@ -24,6 +24,7 @@ When `BCIC_AUTH_MODE` is not provided, the SDK auto-selects authentication:
 - `BCIC_USERNAME` and `BCIC_PASSWORD` (required for `session` mode)
 - `BCIC_API_KEY` (required for `api_key` mode)
 - `BCIC_API_KEY_HEADER` (optional, default `Api-Key`)
+- `BCIC_API_VERSION` (optional, default `v1`)
 - `BCIC_TIMEOUT` (default `30`)
 - `BCIC_MAX_RETRIES` (default `3`)
 - `BCIC_RETRY_WAIT_SECONDS` (default `0.5`)
@@ -51,6 +52,10 @@ with Client(
 
 Explicit keyword arguments to `from_env()` take precedence over environment
 values. Never commit credentials or place them in URLs.
+
+`BCIC_API_VERSION` selects the transport contract used by the client. The
+current SDK ships with a v1 transport as the default and a separate v2 branch
+for version-aware routing.
 
 ## Sessions and cleanup
 

@@ -117,3 +117,9 @@ def test_config_normalizes_auth_mode_loaded_from_environment() -> None:
         api_key="k",
     )
     assert configured.auth_mode == "api_key"
+
+
+def test_config_accepts_api_version() -> None:
+    configured = config(api_version=" v2 ")
+
+    assert configured.api_version == "v2"

@@ -90,6 +90,7 @@ Supported variables:
 - `BCIC_AUTH_MODE`
 - `BCIC_API_KEY`
 - `BCIC_API_KEY_HEADER`
+- `BCIC_API_VERSION`
 - `BCIC_TIMEOUT`
 - `BCIC_MAX_RETRIES`
 - `BCIC_RETRY_WAIT_SECONDS`
@@ -161,6 +162,7 @@ Default values:
 
 - `auth_mode="session"`
 - `api_key_header="Api-Key"`
+- `api_version="v1"`
 - `timeout=30.0`
 - `max_retries=3`
 - `retry_wait_seconds=0.5`

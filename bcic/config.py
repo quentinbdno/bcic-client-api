@@ -15,6 +15,7 @@ from pydantic import (
 
 OutputFormat = Literal["json", "xml"]
 AuthMode = Literal["session", "api_key"]
+ApiVersion = Literal["v1", "v2"]
 
 
 class ClientConfig(BaseModel):
@@ -28,6 +29,7 @@ class ClientConfig(BaseModel):
     auth_mode: AuthMode = "session"
     api_key: SecretStr | None = Field(default=None)
     api_key_header: str = Field(default="Api-Key", min_length=1)
+    api_version: ApiVersion = "v1"
     timeout: float = Field(default=30.0, gt=0)
     max_retries: int = Field(default=3, ge=0)
     retry_wait_seconds: float = Field(default=0.5, ge=0)
@@ -79,6 +81,14 @@ class ClientConfig(BaseModel):
     @classmethod
     def normalize_auth_mode(cls, value: object) -> object:
         """Normalize auth mode values loaded from environment variables."""
+        if isinstance(value, str):
+            return value.strip().lower()
+        return value
+
+    @field_validator("api_version", mode="before")
+    @classmethod
+    def normalize_api_version(cls, value: object) -> object:
+        """Normalize API version values loaded from environment variables."""
         if isinstance(value, str):
             return value.strip().lower()
         return value

@@ -24,6 +24,22 @@ def test_transport_builds_get_and_post_requests() -> None:
     assert recorder.requests[1].read() == b'{"name":"Ada"}'
 
 
+def test_transport_builds_v2_custom_method_requests() -> None:
+    recorder = RequestRecorder(lambda _: json_response({"code": 200, "results": {}}))
+
+    client = httpx.Client(transport=httpx.MockTransport(recorder))
+    transport = RestTransport(
+        "https://example.test/root",
+        api_version="v2",
+        client=client,
+    )
+
+    transport.execute("doThing", {"value": 1}, http_method="POST")
+
+    assert recorder.requests[0].url == "https://example.test/root/customMethod/doThing"
+    assert recorder.requests[0].headers["Accept-Version"] == "latest"
+
+
 def test_parser_normalizes_json_object() -> None:
     response = httpx.Response(200, json={"status": "ok", "items": [1, 2]})
 

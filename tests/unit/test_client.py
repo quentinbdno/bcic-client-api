@@ -66,6 +66,17 @@ def test_client_supports_api_key_authentication_mode() -> None:
     assert client.config.password is None
 
 
+def test_client_supports_api_version_configuration() -> None:
+    client = Client(
+        base_url="https://example.bcic.test",
+        username="integration-user",
+        password="secret-value",
+        api_version="v2",
+    )
+
+    assert client.config.api_version == "v2"
+
+
 def test_client_from_env_supports_explicit_precedence() -> None:
     environment = {
         "BCIC_BASE_URL": "https://environment.bcic.test/",
@@ -106,6 +117,19 @@ def test_client_from_env_supports_api_key_mode() -> None:
     assert client.config.auth_mode == "api_key"
     assert client.config.api_key is not None
     assert client.config.api_key.get_secret_value() == "env-api-key"
+
+
+def test_client_from_env_supports_api_version() -> None:
+    environment = {
+        "BCIC_BASE_URL": "https://environment.bcic.test/",
+        "BCIC_USERNAME": "env-user",
+        "BCIC_PASSWORD": "env-password",
+        "BCIC_API_VERSION": "v2",
+    }
+
+    client = Client.from_env(environment)
+
+    assert client.config.api_version == "v2"
 
 
 def test_client_from_env_infers_session_from_username_and_password() -> None:
