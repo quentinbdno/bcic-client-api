@@ -50,6 +50,10 @@ so that I can begin integrating BCIC into an application using a conventional Py
   - [x] Run `poetry run pytest`, `poetry run ruff check .`, `poetry run ruff format --check .`, and `poetry run mypy bcic`.
   - [x] Confirm both wheel and source distribution are produced and contain the `bcic` package.
 
+### Review Findings
+
+- [ ] [Review][Patch] Installed artifact contract is not covered by committed tests or CI [tests/unit/test_package.py:8]
+
 ## Dev Notes
 
 ### Developer Context and Guardrails

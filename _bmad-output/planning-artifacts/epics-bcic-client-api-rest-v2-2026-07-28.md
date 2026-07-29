@@ -1,5 +1,8 @@
 # BCIC Client API - REST v2 Implementation Roadmap
 
+Note: A concrete implementation-ready backlog supersedes this high-level roadmap.
+See: `_bmad-output/planning-artifacts/epics-bcic-client-api-rest-v2-readiness-2026-07-29.md`.
+
 ## Epic 1 - Versioned Client Foundation
 
 Goal: expose an explicit version selector without breaking v1 consumers.
