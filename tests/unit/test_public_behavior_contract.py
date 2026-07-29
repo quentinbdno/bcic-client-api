@@ -1,14 +1,22 @@
 """Cross-component public behavior and sensitive-value contracts."""
 
+import inspect
 import logging
 
 import httpx
 import pytest
 
 from bcic import Client
+from bcic.endpoints import (
+    BinaryEndpoint,
+    MethodsEndpoint,
+    RecordsEndpoint,
+    UsersEndpoint,
+)
 from bcic.exceptions import BCICError
 from bcic.models.binary import BinaryData, BinaryMetadata
 from bcic.models.records import DynamicRecord
+from tests.unit.fakes import RequestRecorder, json_response
 
 SENSITIVE_MARKERS = (
     "credential-marker",
@@ -17,6 +25,59 @@ SENSITIVE_MARKERS = (
     "raw-bytes-marker",
     "cmF3LWJ5dGVzLW1hcmtlcg==",
 )
+DOCUMENTED_ENDPOINT_TYPES = {
+    "records": RecordsEndpoint,
+    "users": UsersEndpoint,
+    "binary": BinaryEndpoint,
+    "methods": MethodsEndpoint,
+}
+
+
+def test_client_constructor_preserves_v1_default_contract() -> None:
+    signature = inspect.signature(Client)
+
+    assert signature.parameters["base_url"].default is inspect.Parameter.empty
+    assert signature.parameters["api_version"].default == "v1"
+
+    client = Client(
+        base_url="https://sdk-fixture.example.test",
+        username="fixture-user",
+        password="fixture-password",
+    )
+
+    assert client.config.api_version == "v1"
+
+
+def test_default_client_keeps_v1_runtime_request_path() -> None:
+    recorder = RequestRecorder(lambda _: json_response({"status": "ok"}))
+    http_client = httpx.Client(transport=httpx.MockTransport(recorder))
+    client = Client(
+        base_url="https://sdk-fixture.example.test",
+        auth_mode="api_key",
+        api_key="fixture-api-key",
+        http_client=http_client,
+    )
+
+    client.methods.execute("getRecord", {"id": "1"})
+
+    assert recorder.requests[0].url == (
+        "https://sdk-fixture.example.test/rest/api/getRecord?id=1&output=json"
+    )
+
+
+def test_documented_public_endpoint_properties_remain_unchanged() -> None:
+    client = Client(
+        base_url="https://sdk-fixture.example.test",
+        username="fixture-user",
+        password="fixture-password",
+    )
+
+    for name, endpoint_type in DOCUMENTED_ENDPOINT_TYPES.items():
+        assert isinstance(getattr(Client, name), property)
+        assert isinstance(getattr(client, name), endpoint_type)
+
+    assert not hasattr(client, "v1")
+    assert not hasattr(client, "v2")
 
 
 @pytest.mark.parametrize(

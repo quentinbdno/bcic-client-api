@@ -6,8 +6,9 @@ from collections.abc import Mapping
 import httpx
 from pydantic import SecretStr, ValidationError
 
+from bcic._wiring import resolve_adapter_set
 from bcic.auth import ApiKeyAuth, AuthStrategy, SessionAuth
-from bcic.config import AuthMode, ClientConfig, OutputFormat
+from bcic.config import ApiVersion, AuthMode, ClientConfig, OutputFormat
 from bcic.endpoints import (
     BinaryEndpoint,
     MethodsEndpoint,
@@ -21,7 +22,7 @@ from bcic.endpoints.base import (
     _TransportDependencies,
 )
 from bcic.exceptions import ConfigurationError
-from bcic.transport import ResponseParser, RestTransport
+from bcic.transport import ResponseParser
 
 
 def _has_text(value: str | None) -> bool:
@@ -45,7 +46,7 @@ class Client:
         auth_mode: AuthMode = "session",
         api_key: str | None = None,
         api_key_header: str = "Api-Key",
-        api_version: str = "v1",
+        api_version: ApiVersion = "v1",
         timeout: float = 30.0,
         max_retries: int = 3,
         retry_wait_seconds: float = 0.5,
@@ -61,6 +62,7 @@ class Client:
             auth_mode: Authentication mode; defaults to session auth.
             api_key: API key used when ``auth_mode="api_key"``.
             api_key_header: Header name used for API-key authentication.
+            api_version: API adapter version; defaults to REST v1.
             timeout: HTTP timeout in seconds.
             max_retries: Retry attempts after the initial request.
             retry_wait_seconds: Fixed delay between retryable attempts.
@@ -87,10 +89,10 @@ class Client:
         except ValidationError as error:
             raise ConfigurationError("Invalid BCIC client configuration") from error
         parser = ResponseParser()
-        transport = RestTransport(
+        adapter_set = resolve_adapter_set(self._config.api_version)
+        transport = adapter_set.create_transport(
             self._config.base_url,
             timeout=self._config.timeout,
-            api_version=self._config.api_version,
             client=http_client,
             parser=parser,
             max_retries=self._config.max_retries,
@@ -224,7 +226,9 @@ class Client:
             api_key if api_key is not None else source.get("BCIC_API_KEY")
         )
         resolved_api_version = (
-            api_version if api_version is not None else source.get("BCIC_API_VERSION", "v1")
+            api_version
+            if api_version is not None
+            else source.get("BCIC_API_VERSION", "v1")
         )
 
         has_username = _has_text(resolved_username)
@@ -237,6 +241,7 @@ class Client:
         else:
             env_auth_mode = source.get("BCIC_AUTH_MODE")
             if _has_text(env_auth_mode):
+                assert env_auth_mode is not None
                 selected_auth_mode = env_auth_mode  # normalized by ClientConfig
             elif has_api_key:
                 selected_auth_mode = "api_key"

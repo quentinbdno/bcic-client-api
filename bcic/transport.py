@@ -8,6 +8,7 @@ from typing import Literal, Protocol, cast
 import httpx
 from tenacity import Retrying, retry_if_exception_type, stop_after_attempt, wait_fixed
 
+from bcic._wiring import RestAdapter, resolve_adapter_set
 from bcic.config import OutputFormat
 from bcic.exceptions import (
     APIError,
@@ -78,9 +79,10 @@ class RestTransport:
         parser: ResponseParser | None = None,
         max_retries: int = 3,
         retry_wait_seconds: float = 0.5,
+        adapter: RestAdapter | None = None,
     ) -> None:
         self._base_url = base_url.rstrip("/")
-        self._api_version = api_version
+        self._adapter = adapter or resolve_adapter_set(api_version).transport
         self._owns_client = client is None
         self._client = client or httpx.Client(timeout=timeout)
         self._parser = parser or ResponseParser()
@@ -112,11 +114,10 @@ class RestTransport:
             method_name,
             http_method,
         )
-        url = self._build_url(method_name)
+        url = self._adapter.build_url(self._base_url, method_name)
         request_parameters = dict(parameters or {})
         request_headers = dict(headers or {})
-        if self._api_version == "v2":
-            request_headers.setdefault("Accept-Version", "latest")
+        request_headers.update(self._adapter.request_headers(method_name))
         if authenticate and self.authentication is not None:
             request_headers.update(self.authentication.request_headers())
         try:
@@ -175,15 +176,6 @@ class RestTransport:
         if isinstance(payload, dict):
             self._raise_for_bcic_status(payload)
         return payload
-
-    def _build_url(self, method_name: str) -> str:
-        if self._api_version == "v1":
-            return f"{self._base_url}/rest/api/{method_name}"
-        if self._api_version == "v2":
-            if method_name in {"login", "logout"}:
-                return f"{self._base_url}/userResource/{method_name}"
-            return f"{self._base_url}/customMethod/{method_name}"
-        raise ValidationError("Unsupported API version")
 
     def _send(
         self,
